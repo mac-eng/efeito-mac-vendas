@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Ranking Corretores — Efeito MAC Vendas</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111112;--paper:#fff;--g1:#f4f4f3;--g2:#e7e7e5;--g3:#d6d6d3;--g4:#a9a7a2;--g5:#6d6b66;--g6:#3a3a3c;
+--accent:#b4894d;--accent2:#d8b271;--go:#1f7a4d;--shadow:0 1px 2px rgba(17,17,18,.06),0 10px 30px rgba(17,17,18,.08);--radius:18px;}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:'Archivo',system-ui,Arial,sans-serif;color:var(--ink);background:var(--g1);-webkit-font-smoothing:antialiased}
+.mono{font-variant-numeric:tabular-nums}h1,h2,h3{margin:0;font-weight:900;letter-spacing:-.01em}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 20px 60px}
+.top{background:var(--ink);color:#fff;border-radius:var(--radius);padding:24px 30px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.top .caret{position:absolute;top:22px;right:28px;font-weight:900;font-size:24px;opacity:.9}
+.brand{display:flex;align-items:center;gap:16px}
+.ticks{display:flex;align-items:flex-end;gap:5px;height:24px}.ticks i{display:block;width:6px;border-radius:6px;background:#fff}
+.logo .l1{font-size:13px;font-weight:800;letter-spacing:.30em;line-height:1;opacity:.92}
+.logo .l2{font-size:32px;font-weight:900;line-height:.92;margin-top:2px}
+.logo .l3{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.42em;margin-top:4px;opacity:.9}
+.logo .l3 .bb{display:inline-flex;align-items:flex-end;gap:2px;height:11px}.logo .l3 .bb i{width:3px;background:var(--accent2);border-radius:2px}
+.title{margin-top:16px;font-size:32px;font-weight:900;line-height:1}
+.title .tag{display:inline-block;background:var(--accent);color:#1c1408;font-size:13px;font-weight:800;padding:5px 11px;border-radius:8px;vertical-align:middle;margin-left:10px;letter-spacing:.04em}
+.upd{margin-top:9px;font-size:13px;color:#c9c9c7}.upd b{color:#fff}
+.copy{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:14px;background:var(--paper);border:1px solid var(--g2);border-left:5px solid var(--accent);border-radius:14px;padding:13px 18px;box-shadow:var(--shadow)}
+.copy .hot{font-size:15px;font-weight:900}.copy .hot small{display:block;font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--g5);text-transform:uppercase}
+.copy .efe{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--g1);border:1px solid var(--g2);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--g6)}
+.chip b{background:var(--ink);color:#fff;border-radius:6px;padding:1px 6px;font-size:11px}
+.metabar{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px;margin-top:12px}
+.mb{background:var(--paper);border:1px solid var(--g2);border-radius:14px;padding:15px 18px;box-shadow:var(--shadow)}
+.mb .k{font-size:11.5px;font-weight:800;color:var(--g5);text-transform:uppercase;letter-spacing:.06em}
+.mb .v{font-size:25px;font-weight:900;margin-top:3px}.mb .v small{font-size:13px;color:var(--g5);font-weight:700}
+.progress{margin-top:12px;background:var(--paper);border:1px solid var(--g2);border-radius:14px;padding:15px 18px;box-shadow:var(--shadow)}
+.plabel{display:flex;justify-content:space-between;font-size:12.5px;color:var(--g5);font-weight:700}
+.track{position:relative;height:22px;background:var(--g2);border-radius:999px;margin:16px 0 26px;overflow:visible}
+.fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#3a3a3c,#111112);min-width:6px;transition:width .6s}
+.mk{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--g4)}
+.mk span{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:800;color:var(--g5)}
+.mk.hit{background:var(--accent)}.mk.hit span{color:var(--accent)}
+.toggle{display:inline-flex;background:var(--g2);border-radius:999px;padding:4px;margin:20px 0 4px;gap:4px}
+.toggle button{border:0;background:transparent;font:inherit;font-weight:800;font-size:13px;color:var(--g5);padding:9px 18px;border-radius:999px;cursor:pointer}
+.toggle button.on{background:var(--paper);color:var(--ink);box-shadow:var(--shadow)}
+.vnote{font-size:12.5px;color:var(--g5);margin:2px 0 14px}
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+.pod{border-radius:var(--radius);padding:20px 18px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow);min-height:150px;display:flex;flex-direction:column;justify-content:space-between}
+.pod.p1{background:linear-gradient(150deg,#c79a54,#8a6529)}.pod.p2{background:linear-gradient(150deg,#54565b,#2b2c30)}.pod.p3{background:linear-gradient(150deg,#8a6a4a,#4d3722)}
+.pod .medal{font-size:13px;font-weight:800;letter-spacing:.08em;opacity:.95;text-transform:uppercase}
+.pod .nm{font-size:24px;font-weight:900;line-height:1.05;margin-top:6px}
+.pod .sub{font-size:12px;opacity:.85;margin-top:3px}
+.pod .amt{font-size:27px;font-weight:900;margin-top:10px}.pod .amt small{font-size:12px;opacity:.8;font-weight:700;display:block;letter-spacing:.04em}
+.pod .pos{position:absolute;top:12px;right:16px;font-size:52px;font-weight:900;opacity:.20;line-height:1}
+.list{margin-top:14px;background:var(--paper);border:1px solid var(--g2);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.row{display:flex;align-items:center;gap:14px;padding:15px 18px;border-top:1px solid var(--g2)}.row:first-child{border-top:0}
+.row .pos{width:34px;text-align:center;font-weight:900;font-size:17px;color:var(--g5)}
+.row .who{flex:1;min-width:0}.row .who b{font-size:16px;font-weight:800}.row .who .sub{font-size:12px;color:var(--g5)}
+.row .amt{font-size:18px;font-weight:900;min-width:130px;text-align:right;font-variant-numeric:tabular-nums}.row .amt small{display:block;font-size:10px;color:var(--g5);font-weight:700}
+.pchip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}.pchip.sal{background:#eef1f4;color:#3d4a57}.pchip.onl{background:#efeafa;color:#5a469c}
+.empty{padding:30px;text-align:center;color:var(--g5)}
+.foot{margin-top:24px;font-size:12px;color:var(--g5);text-align:center}.foot b{color:var(--g6)}
+@media(max-width:760px){.podium{grid-template-columns:1fr}.metabar{grid-template-columns:1fr}.title{font-size:25px}.copy .efe{margin-left:0}}
+body.tv{background:#0c0c0d;overflow:hidden}
+body.tv .wrap{max-width:none;height:100vh;padding:2.2vh 2.4vw;display:flex;flex-direction:column;gap:1.4vh}
+body.tv .top{border-radius:14px;padding:1.8vh 2.4vw}body.tv .logo .l2{font-size:3.4vh}body.tv .title{font-size:3.2vh;margin-top:1vh}
+body.tv .caret{font-size:3vh}body.tv .copy{margin-top:0}body.tv .metabar{margin-top:0}body.tv .mb .v{font-size:3.2vh}
+body.tv .toggle{display:none}body.tv .vnote{display:none}body.tv .progress{margin-top:0;padding:1.2vh 1.6vw}
+body.tv .track{height:2.4vh;margin:1.6vh 0 3vh}body.tv .podium{gap:1.2vw;flex:0 0 auto}
+body.tv .pod{min-height:22vh;padding:2.4vh 1.8vw}body.tv .pod .nm{font-size:3.4vh}body.tv .pod .amt{font-size:3.4vh}body.tv .pod .pos{font-size:9vh}
+body.tv .list{flex:1 1 auto;margin-top:1.2vh;overflow:hidden}body.tv .row{padding:1.4vh 1.6vw}body.tv .row .who b{font-size:2.4vh}body.tv .row .amt{font-size:2.4vh;min-width:18vw}
+body.tv .foot{margin-top:1vh}body.tv .rot{position:fixed;bottom:2vh;right:2.4vw;font-size:1.6vh;font-weight:800;color:#8a8a86;background:#17171a;border:1px solid #2a2a2e;border-radius:999px;padding:.6vh 1.4vw}
+</style></head><body class="">
+<div class="wrap">
+  <header class="top"><div class="caret">&#94;</div>
+    <div class="brand"><div class="ticks"><i style="height:9px"></i><i style="height:17px"></i><i style="height:24px"></i><i style="height:13px"></i><i style="height:20px"></i></div>
+      <div class="logo"><div class="l1">EFEITO</div><div class="l2">MAC</div>
+        <div class="l3">VENDAS <span class="bb"><i style="height:5px"></i><i style="height:8px"></i><i style="height:11px"></i><i style="height:7px"></i><i style="height:9px"></i></span></div></div></div>
+    <div class="title">Corretores Mac Vendas <span class="tag">RANKING</span></div>
+    <div class="upd">Motor de Vendas · Ago+Set 2026 &nbsp;·&nbsp; Atualizado em <b>13/08/2026 às 14:09</b></div></header>
+  <div class="copy"><div class="hot"><small>Campanha de estoque mais agressiva</small>CORRA, PRAZO É CURTO!</div>
+    <div class="efe"><span class="chip"><b>01</b> Vendeu, ganhou</span><span class="chip"><b>02</b> Autoria potencializa</span><span class="chip"><b>03</b> Sem teto</span></div></div>
+  <div class="metabar">
+    <div class="mb"><div class="k">VGV da campanha</div><div class="v mono" id="mVgv"></div></div>
+    <div class="mb"><div class="k">% da meta</div><div class="v mono" id="mPct"></div></div>
+    <div class="mb"><div class="k">Meta 100%</div><div class="v mono">R$ 88,5 mi <small>/ 73 un.</small></div></div></div>
+  <div class="progress"><div class="plabel"><span>Progresso até a meta</span><span>60% = R$ 53,1 mi · 80% = R$ 70,8 mi · 100% = R$ 88,5 mi</span></div>
+    <div class="track"><div class="fill" id="mFill" style="width:0%"></div>
+      <div class="mk" id="mk60" style="left:60%"><span>60%</span></div><div class="mk" id="mk80" style="left:80%"><span>80%</span></div><div class="mk" id="mk100" style="left:100%"><span>100%</span></div></div></div>
+  <div class="toggle"><button id="btnReal" class="on" onclick="setView('realizado')">Realizado · sinal compensado</button>
+    <button id="btnProj" onclick="setView('projecao')">Projeção · vendas lançadas</button></div>
+  <div class="vnote" id="vnote"></div>
+  <div id="podium" class="podium"></div><div id="list" class="list"></div>
+  <div class="foot">Efeito MAC Vendas · Corretores Mac Vendas · ranking por VGV vendido · Atualizado em <b>13/08/2026 às 14:09</b></div>
+  <div class="rot" id="rot" style="display:none"></div>
+</div>
+<script>
+const DATA={"meta": {"vgv": 88516862, "unid": 73, "t60": 53110117, "t80": 70813490, "t100": 88516862}, "realizado": {"vgv_total": 605289.0, "unid_total": 1.0, "pct": 0.006838120854306832, "trigger": 0, "corretores": {}, "gerentes": {"DIEGO": {"vgv": 605289.0, "vendas": 1.0, "equipe": ["JENIFFER"], "premiacao": 1000, "parcerias_fixo": 2000, "total": 3000, "detalhe": ["1x Autoria MAC -> R$1,000"]}}, "parcerias": {"DIEGO": {"vendas": 1.0, "vgv": 605289.0, "unidades": 1, "fixo": 2000, "corretores": [{"nome": "JENIFFER", "vendas": 1.0, "vgv": 605289.0}]}}, "comercial": {"Luiz": 605.29, "Bruno": 0.0, "Danilo": 605.29, "variavel_por_gestor": 0}, "premio_extra": 0, "sorteio": "—"}, "projecao": {"vgv_total": 3992058.58, "unid_total": 5.0, "pct": 0.04509941371396559, "trigger": 0, "corretores": {"CINTIA": {"canal": "ONLINE", "gerente": "MITUI", "vgv": 569000.0, "vendas": 1.0, "premiacao": 2000, "detalhe": ["1x Autoria MAC [sozinha] -> R$2,000"]}, "ROBSON": {"canal": "SALÃO", "gerente": "DAMIAO", "vgv": 1912950.0, "vendas": 1.5, "premiacao": 5000, "detalhe": ["1x Mac Brooklin [sozinho (75%)] -> R$5,000", "(0,5 de Autoria descartada — não fecha unidade)"]}, "BRUNA": {"canal": "SALÃO", "gerente": "MITUI", "vgv": 293950.0, "vendas": 0.5, "premiacao": 0, "detalhe": ["0,5 venda — não pontua até somar 1 unidade"]}}, "gerentes": {"MITUI": {"vgv": 862950.0, "vendas": 1.5, "equipe": ["BRUNA", "CINTIA"], "premiacao": 1000, "parcerias_fixo": 0, "total": 1000, "detalhe": ["1x Autoria MAC -> R$1,000"]}, "DAMIAO": {"vgv": 1912950.0, "vendas": 1.5, "equipe": ["ROBSON"], "premiacao": 3000, "parcerias_fixo": 0, "total": 3000, "detalhe": ["1x Mac Brooklin [sozinho (75%)] -> R$3,000"]}, "DIEGO": {"vgv": 1216158.58, "vendas": 2.0, "equipe": ["FOXTER", "JENIFFER", "U REAL ESTATE"], "premiacao": 3000, "parcerias_fixo": 4000, "total": 7000, "detalhe": ["2x Autoria MAC -> R$3,000"]}}, "parcerias": {"DIEGO": {"vendas": 2.0, "vgv": 1216158.58, "unidades": 2, "fixo": 4000, "corretores": [{"nome": "FOXTER", "vendas": 0.5, "vgv": 305434.79}, {"nome": "JENIFFER", "vendas": 1.0, "vgv": 605289.0}, {"nome": "U REAL ESTATE", "vendas": 0.5, "vgv": 305434.79}]}}, "comercial": {"Luiz": 3992.06, "Bruno": 1619.0, "Danilo": 2373.06, "variavel_por_gestor": 0}, "premio_extra": 0, "sorteio": "—"}, "n_lancadas": 7, "n_validas": 1};const MODE="corretores";const TV=document.body.classList.contains('tv');let view='realizado';
+const brl=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
+const canalChip=c=>{const m={'SALÃO':['sal','Salão'],'ONLINE':['onl','Online']};const x=m[c]||['sal',c];return `<span class="pchip ${x[0]}">${x[1]}</span>`;};
+function rows(){const r=DATA[view];
+  if(MODE==='gerentes'){return Object.entries(r.gerentes).map(([n,g])=>({nome:n,amount:g.vgv,vendas:g.vendas,sub:`${g.equipe.length} corretor(es) · ${(+g.vendas).toLocaleString('pt-BR')} venda(s)`,canal:null})).sort((a,b)=>b.amount-a.amount);}
+  return Object.entries(r.corretores).map(([n,c])=>({nome:n,amount:c.vgv,vendas:c.vendas,sub:`Gerente ${c.gerente} · ${(+c.vendas).toLocaleString('pt-BR')} venda(s)`,canal:c.canal})).sort((a,b)=>b.amount-a.amount);}
+function render(){const r=DATA[view],pct=r.pct*100;
+  document.getElementById('btnReal').classList.toggle('on',view==='realizado');document.getElementById('btnProj').classList.toggle('on',view==='projecao');
+  document.getElementById('vnote').innerHTML=view==='realizado'?`Ranking oficial — só vendas com <b>sinal compensado</b> (${DATA.n_validas} de ${DATA.n_lancadas}).`:`Prévia — inclui as <b>${DATA.n_lancadas}</b> vendas lançadas (algumas em validação).`;
+  document.getElementById('mVgv').textContent=brl(r.vgv_total);document.getElementById('mPct').textContent=pct.toFixed(2)+'%';
+  document.getElementById('mFill').style.width=Math.min(pct,100).toFixed(2)+'%';
+  [['mk60',60],['mk80',80],['mk100',100]].forEach(([id,t])=>document.getElementById(id).classList.toggle('hit',pct>=t));
+  const rs=rows(),top=rs.slice(0,3),rest=rs.slice(3),medals=['1º LUGAR','2º LUGAR','3º LUGAR'];
+  document.getElementById('podium').innerHTML=rs.length?top.map((x,i)=>`<div class="pod p${i+1}"><div class="pos">${i+1}</div>
+    <div><div class="medal">${medals[i]}</div><div class="nm">${x.nome}</div><div class="sub">${x.canal?canalChip(x.canal)+' ':''}${x.sub}</div></div>
+    <div class="amt">${brl(x.amount)}<small>EM VGV VENDIDO</small></div></div>`).join(''):'';
+  const listEl=document.getElementById('list');
+  if(!rs.length){listEl.style.display='';listEl.innerHTML=`<div class="empty">Nenhuma venda ${view==='realizado'?'validada':'lançada'} ainda nesta categoria.</div>`;}
+  else if(!rest.length){listEl.style.display='none';listEl.innerHTML='';}
+  else{listEl.style.display='';listEl.innerHTML=rest.map((x,i)=>`<div class="row"><div class="pos">${i+4}º</div>
+    <div class="who"><b>${x.nome}</b> ${x.canal?canalChip(x.canal):''}<div class="sub">${x.sub}</div></div>
+    <div class="amt">${brl(x.amount)}<small>VGV</small></div></div>`).join('');}}
+function setView(v){view=v;render();}render();
+if(TV){const rot=document.getElementById('rot');rot.style.display='block';const upd=()=>{rot.textContent=view==='realizado'?'OFICIAL · sinal compensado':'PRÉVIA · vendas lançadas';};upd();
+  setInterval(()=>{view=(view==='realizado')?'projecao':'realizado';render();upd();},12000);}
+</script></body></html>
