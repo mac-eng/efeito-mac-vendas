@@ -75,7 +75,7 @@ body.tv .foot{margin-top:1vh}body.tv .rot{position:fixed;bottom:2vh;right:2.4vw;
       <div class="logo"><div class="l1">EFEITO</div><div class="l2">MAC</div>
         <div class="l3">VENDAS <span class="bb"><i style="height:5px"></i><i style="height:8px"></i><i style="height:11px"></i><i style="height:7px"></i><i style="height:9px"></i></span></div></div></div>
     <div class="title">Gerentes Mac Vendas <span class="tag">RANKING</span></div>
-    <div class="upd">Motor de Vendas · Ago+Set 2026 &nbsp;·&nbsp; Atualizado em <b>13/08/2026 às 14:09</b></div></header>
+    <div class="upd">Motor de Vendas · Ago+Set 2026 &nbsp;·&nbsp; Atualizado em <b>13/08/2026 às 18:04</b></div></header>
   <div class="copy"><div class="hot"><small>Campanha de estoque mais agressiva</small>CORRA, PRAZO É CURTO!</div>
     <div class="efe"><span class="chip"><b>01</b> Vendeu, ganhou</span><span class="chip"><b>02</b> Autoria potencializa</span><span class="chip"><b>03</b> Sem teto</span></div></div>
   <div class="metabar">
@@ -89,7 +89,7 @@ body.tv .foot{margin-top:1vh}body.tv .rot{position:fixed;bottom:2vh;right:2.4vw;
     <button id="btnProj" onclick="setView('projecao')">Projeção · vendas lançadas</button></div>
   <div class="vnote" id="vnote"></div>
   <div id="podium" class="podium"></div><div id="list" class="list"></div>
-  <div class="foot">Efeito MAC Vendas · Gerentes Mac Vendas · ranking por VGV vendido · Atualizado em <b>13/08/2026 às 14:09</b></div>
+  <div class="foot">Efeito MAC Vendas · Gerentes Mac Vendas · ranking por VGV vendido · Atualizado em <b>13/08/2026 às 18:04</b></div>
   <div class="rot" id="rot" style="display:none"></div>
 </div>
 <script>
@@ -97,11 +97,11 @@ const DATA={"meta": {"vgv": 88516862, "unid": 73, "t60": 53110117, "t80": 708134
 const brl=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
 const canalChip=c=>{const m={'SALÃO':['sal','Salão'],'ONLINE':['onl','Online']};const x=m[c]||['sal',c];return `<span class="pchip ${x[0]}">${x[1]}</span>`;};
 function rows(){const r=DATA[view];
-  if(MODE==='gerentes'){return Object.entries(r.gerentes).map(([n,g])=>({nome:n,amount:g.vgv,vendas:g.vendas,sub:`${g.equipe.length} corretor(es) · ${(+g.vendas).toLocaleString('pt-BR')} venda(s)`,canal:null})).sort((a,b)=>b.amount-a.amount);}
-  return Object.entries(r.corretores).map(([n,c])=>({nome:n,amount:c.vgv,vendas:c.vendas,sub:`Gerente ${c.gerente} · ${(+c.vendas).toLocaleString('pt-BR')} venda(s)`,canal:c.canal})).sort((a,b)=>b.amount-a.amount);}
+  if(MODE==='gerentes'){return Object.entries(r.gerentes).map(([n,g])=>({nome:n,amount:g.vgv,sub:`${g.equipe.length} corretor(es)`,canal:null})).sort((a,b)=>b.amount-a.amount);}
+  return Object.entries(r.corretores).map(([n,c])=>({nome:n,amount:c.vgv,sub:`Gerente ${c.gerente}`,canal:c.canal})).sort((a,b)=>b.amount-a.amount);}
 function render(){const r=DATA[view],pct=r.pct*100;
   document.getElementById('btnReal').classList.toggle('on',view==='realizado');document.getElementById('btnProj').classList.toggle('on',view==='projecao');
-  document.getElementById('vnote').innerHTML=view==='realizado'?`Ranking oficial — só vendas com <b>sinal compensado</b> (${DATA.n_validas} de ${DATA.n_lancadas}).`:`Prévia — inclui as <b>${DATA.n_lancadas}</b> vendas lançadas (algumas em validação).`;
+  document.getElementById('vnote').innerHTML=view==='realizado'?`Ranking oficial — só vendas com <b>sinal compensado</b>.`:`Prévia — inclui também os lançamentos ainda em validação de sinal.`;
   document.getElementById('mVgv').textContent=brl(r.vgv_total);document.getElementById('mPct').textContent=pct.toFixed(2)+'%';
   document.getElementById('mFill').style.width=Math.min(pct,100).toFixed(2)+'%';
   [['mk60',60],['mk80',80],['mk100',100]].forEach(([id,t])=>document.getElementById(id).classList.toggle('hit',pct>=t));
