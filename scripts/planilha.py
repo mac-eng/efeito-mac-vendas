@@ -130,3 +130,93 @@ def carregar_vendas(sheet_id: str) -> list[Venda]:
     if not vendas:
         raise RuntimeError("Nenhuma venda de campanha encontrada — abortando sem alterar o site.")
     return vendas
+
+
+# ------------------------------------------------------- conta corrente
+
+COL_QUADRO = "DESCONTO"
+
+
+def carregar_conta_corrente(sheet_id: str):
+    """
+    Devolve (lancamentos, quadro) para a Conta Corrente de Desconto.
+
+    `lancamentos` sai da aba de vendas (uma linha por corretor, com o DESCONTO PV
+    já rateado por share). `quadro` sai da aba "por unidade" e serve só de
+    conferência — a soma dos lançamentos de cada unidade tem de bater com ele.
+    """
+    from conta_corrente import Lancamento
+
+    planilha = abrir_planilha(sheet_id)
+    aba, linha_cabecalho = _aba_de_vendas(planilha)
+    tabela = aba.get_values()
+    cabecalho = [_chave(c) for c in tabela[linha_cabecalho]]
+    idx = {nome: i for i, nome in enumerate(cabecalho) if nome}
+
+    if _chave("DESCONTO PV") not in idx:
+        raise RuntimeError("Coluna 'DESCONTO PV' ausente na aba de vendas.")
+
+    def campo(linha, nome, padrao=""):
+        i = idx.get(_chave(nome))
+        if i is None or i >= len(linha):
+            return padrao
+        return linha[i]
+
+    lancamentos = []
+    for linha in tabela[linha_cabecalho + 1:]:
+        obra = str(campo(linha, "OBRA")).strip()
+        data = str(campo(linha, COL_DATA)).strip()
+        if not obra or not data:
+            continue
+        periodo = _chave(str(campo(linha, "PERÍODO CAMPANHA", "CAMPANHA")))
+        if periodo and periodo != "CAMPANHA":
+            continue
+        share = _numero(campo(linha, "VENDAS"))
+        if share <= 0:
+            continue
+
+        lancamentos.append(
+            Lancamento(
+                data=data,
+                obra=nome_produto(obra),
+                unidade=str(campo(linha, "UNIDADE")).strip(),
+                corretor=nome_corretor(str(campo(linha, "CORRETOR"))),
+                gerente=str(campo(linha, "GERENTE")).strip().upper(),
+                canal=str(campo(linha, "CANAL VENDAS")).strip().upper(),
+                share=share,
+                vgv=_numero(campo(linha, "VGV")),
+                desconto=_numero(campo(linha, "DESCONTO PV")),
+                sinal_compensado=_numero(campo(linha, "VENDAS VÁLIDAS")) > 0,
+            )
+        )
+
+    return lancamentos, _quadro_por_unidade(planilha)
+
+
+def _quadro_por_unidade(planilha) -> dict[tuple[str, float], float]:
+    """Aba de conferência: uma linha por unidade, com o desconto total dela."""
+    alvo_obra, alvo_unid, alvo_desc = _chave("OBRA"), _chave("UNIDADE"), _chave(COL_QUADRO)
+
+    for aba in planilha.worksheets():
+        tabela = aba.get_values()
+        for i, linha in enumerate(tabela[:12]):
+            chaves = [_chave(c) for c in linha]
+            # O quadro tem OBRA/UNIDADE/DESCONTO mas NÃO tem a coluna DESCONTO PV.
+            if (alvo_obra in chaves and alvo_unid in chaves and alvo_desc in chaves
+                    and _chave("DESCONTO PV") not in chaves):
+                col = {c: j for j, c in enumerate(chaves) if c}
+                quadro: dict[tuple[str, str], float] = {}
+                for l in tabela[i + 1:]:
+                    if len(l) <= max(col[alvo_obra], col[alvo_unid], col[alvo_desc]):
+                        continue
+                    obra = str(l[col[alvo_obra]]).strip()
+                    unidade = str(l[col[alvo_unid]]).strip()
+                    if not obra or not unidade:
+                        continue
+                    chave = (nome_produto(obra), unidade)
+                    quadro[chave] = quadro.get(chave, 0.0) + _numero(l[col[alvo_desc]])
+                if quadro:
+                    return quadro
+    raise RuntimeError(
+        "Aba de conferência por unidade (OBRA / UNIDADE / DESCONTO) não encontrada."
+    )

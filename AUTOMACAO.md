@@ -10,13 +10,33 @@ num bloco `const DATA = {...}` dentro de cinco arquivos:
 | `mural-corretores.html` | Mural para o telão |
 | `mural-gerentes.html` | Mural para o telão |
 | `painel.html` | Painel completo — **criptografado com StatiCrypt** |
+| `conta-corrente.html` | Conta Corrente de Desconto — **criptografado com StatiCrypt** |
 
 Toda segunda às 09:30 (Brasília), o GitHub Actions lê a planilha
-**"Campanha Estoque - Geral - BP17"** no Drive, recalcula a premiação, reescreve
-os cinco arquivos e commita na `main`. O Pages publica sozinho. Nada disso
-depende de nenhum computador ligado.
+**"Campanha Estoque - Geral - BP17"** no Drive e, numa tacada só: recalcula a
+premiação e reescreve os cinco HTMLs de ranking; confere e regera a Conta
+Corrente de Desconto; tira o screenshot das quatro artes `.jpg`; e commita tudo
+na `main`. O Pages publica sozinho.
 
-Se nenhum número mudou desde a semana anterior, o robô não commita nada.
+**Não há mais push manual.** Nada disso depende de nenhum computador ligado.
+
+## Como as segundas ficaram
+
+| Horário (Brasília) | Quem | O que faz |
+| --- | --- | --- |
+| 09:30 | GitHub Actions | Publica: números, conta corrente e artes. Commita sozinho. |
+| 10:00 | Cowork — *conferir a publicação* | Compara o site com a planilha. Se o robô falhou, te avisa no celular. |
+| 10:15 | Cowork — *e-mail de ranking* | Rascunho no Gmail a partir do que está no ar. Não gera arquivo. |
+| 10:30 | Cowork — *e-mail de conta corrente* | Rascunho no Gmail para Isaac e Luiz. Não gera arquivo. |
+
+A ordem é deliberada: **publica → confere → comunica**. As duas tarefas de e-mail
+checam o carimbo "Atualizado em" antes de escrever; se o robô das 09:30 falhou,
+elas não criam rascunho com número velho.
+
+> **Atenção ao seu clone local.** A partir da primeira execução do workflow, o
+> robô passa a commitar na `main`. Seu `C:\Git\efeito-mac-vendas` fica atrás do
+> origin. Antes de qualquer push seu, rode `git pull` — senão o Git recusa.
+> No dia a dia você não precisa mais mexer no repositório.
 
 ## Como o cálculo é feito
 
@@ -35,6 +55,34 @@ quebrarem, ele para e não publica número errado.
 
 `realizado` conta só vendas com sinal compensado (coluna *VENDAS VÁLIDAS* > 0);
 `projecao` conta tudo que foi lançado no período da campanha.
+
+## Conta Corrente de Desconto
+
+`scripts/conta_corrente.py` trata o desconto como **verba**: cada produto começa
+com o valor autorizado integral, desconto concedido consome e ágio devolve. Só
+quatro produtos têm conta corrente — Autoria MAC (R$ 460.000 / 34 un.), Mac
+Brooklin (R$ 840.000 / 6), Mac Vila Clementino (R$ 450.000 / 4) e Mac Vila
+Mariana (R$ 330.000 / 4), somando R$ 2.080.000. Ateliê 365, Ibirapuera,
+Pinheiros e Campo Belo aparecem só na nota de rodapé; o desconto deles é apurado
+por outro modelo e o script nunca inventa verba para eles.
+
+O *ritmo* compara a % da verba consumida com a % das unidades vendidas: em folga,
+atenção (até 10 p.p. à frente), acelerado, estouro.
+
+**A conferência por unidade roda antes de tudo:** a soma do `DESCONTO PV` das
+linhas de cada unidade tem de bater com a aba de conferência. Se não bater, o
+rateio por share mudou na planilha — o script sai com erro e o workflow falha
+**sem commitar**. Número de verba não vai para a diretoria sem conferir.
+
+O painel sai sempre criptografado. Sem `STATICRYPT_PASSWORD` o script aborta, em
+vez de publicar verba em texto aberto.
+
+## Artes .jpg
+
+`scripts/artes.py` abre as próprias páginas do site num Chromium headless, força
+a visão "Projeção · vendas lançadas", congela a auto-rotação dos murais e salva o
+screenshot — 1080×1080 para os rankings, 1080×607 para os murais, iguais aos
+arquivos que já estavam publicados. Não há mais arte gerada à mão.
 
 ## Configuração (uma vez só)
 
@@ -86,9 +134,14 @@ export SHEET_ID=1KkpBhKvUL6nxIovp8ukP5ZlnhLzNPW910UifvmzHVXo
 export GOOGLE_SERVICE_ACCOUNT_JSON="$(cat caminho/para/credencial.json)"
 export STATICRYPT_PASSWORD='...'
 
-python scripts/atualiza.py --dry-run   # mostra o que mudaria, sem gravar
-python scripts/atualiza.py             # grava os HTMLs
+python scripts/atualiza.py --dry-run              # mostra o que mudaria, sem gravar
+python scripts/atualiza.py                        # números dos rankings e do painel
+python scripts/atualiza_conta_corrente.py         # conta corrente
+python scripts/artes.py --so-mudadas              # artes .jpg
 ```
+
+Para as artes é preciso ter o Chromium do Playwright: `python -m playwright
+install chromium`.
 
 ## Sobre o painel.html
 
@@ -108,6 +161,8 @@ normalmente.
 | `Senha incorreta: o HMAC do payload não confere` | o `painel.html` foi republicado com outra senha |
 | `Nenhuma venda de campanha encontrada` | a coluna *PERÍODO CAMPANHA* está vazia ou a aba foi zerada |
 | `403` / `PERMISSION_DENIED` | a planilha não está compartilhada com a service account |
+| `CONFERÊNCIA NÃO BATEU` | o rateio por share mudou: a soma do *DESCONTO PV* de uma unidade não bate com o quadro de conferência |
+| `Aba de conferência por unidade não encontrada` | a aba com OBRA / UNIDADE / DESCONTO sumiu ou foi renomeada |
 
 Em todos esses casos o robô **aborta sem alterar o site** — o que está no ar
 continua no ar.
@@ -118,8 +173,10 @@ continua no ar.
   a que já estava no site. O quadro resumo da planilha usa R$ 98.000.000 numa
   célula própria — se a meta oficial mudar, ajuste `META_VGV` em
   `scripts/motor.py` e rode os testes.
-- As artes `.jpg` (ranking-corretores.jpg etc.) **não** são regeneradas pelo robô;
-  continuam sendo produzidas à parte.
+- As verbas da conta corrente (R$ 2.080.000 no total) e as unidades de campanha
+  estão em `VERBAS`, no topo de `scripts/conta_corrente.py`. Duas pendências
+  marcadas como *a confirmar*: as unidades do Mac Vila Mariana (o Documento Mãe
+  traz 5, aqui está 4) e a ausência de conta corrente do Mac Campo Belo.
 - Nomes de corretor saem da coluna *CORRETOR* (`"CINTIA - CINTIA DE OLIVEIRA ROSA"`
   vira `CINTIA`; razões sociais perdem os sufixos de PJ). Para forçar um apelido
   específico, use o parâmetro `apelidos` de `nome_corretor`.
