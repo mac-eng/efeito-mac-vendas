@@ -1,0 +1,83 @@
+name: Atualiza números da campanha
+
+# Toda segunda às 09:30 de Brasília (12:30 UTC). O GitHub avalia cron em UTC e
+# pode atrasar alguns minutos em horários de pico — por isso o robô roda às
+# 09:30 e as tarefas do Cowork só começam às 10:00, com os números já no ar.
+on:
+  schedule:
+    - cron: "30 12 * * 1"
+  workflow_dispatch:          # permite rodar na mão pela aba Actions
+
+permissions:
+  contents: write
+
+concurrency:
+  group: atualiza-numeros
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      SHEET_ID: ${{ vars.SHEET_ID }}
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+      STATICRYPT_PASSWORD: ${{ secrets.STATICRYPT_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instala dependências
+        run: |
+          pip install --disable-pip-version-check -r scripts/requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Testa o motor de premiação
+        # Se as regras quebrarem, para aqui — melhor não publicar do que
+        # publicar número errado.
+        run: python -m pytest tests/ -q
+
+      # 1) Números dos rankings, murais e painel.
+      - name: Atualiza os HTMLs a partir da planilha
+        id: numeros
+        run: python scripts/atualiza.py
+
+      # 2) Conta Corrente de Desconto. A conferência por unidade roda dentro do
+      #    script: se não bater, ele sai com erro e o job falha sem commitar.
+      - name: Atualiza a Conta Corrente de Desconto
+        id: conta
+        run: python scripts/atualiza_conta_corrente.py
+
+      # 3) Artes .jpg, geradas por screenshot das próprias páginas já atualizadas.
+      - name: Gera as artes
+        run: python scripts/artes.py --so-mudadas
+
+      - name: Commita e publica
+        id: publica
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- '*.html' '*.jpg'
+          if git diff --staged --quiet; then
+            echo "Nenhum arquivo mudou desde a última publicação — nada a commitar."
+            exit 0
+          fi
+          git commit -m "Atualiza campanha — ${{ steps.numeros.outputs.resumo || 'sem mudança nos números' }}"
+          git push
+          echo "Publicado:"
+          git show --stat --oneline HEAD
+
+      - name: Resumo da execução
+        if: always()
+        run: |
+          {
+            echo "### Efeito MAC — atualização semanal"
+            echo ""
+            echo "- Números: ${{ steps.numeros.outputs.resumo || 'sem mudança' }}"
+            echo "- ${{ steps.conta.outputs.resumo || 'Conta corrente sem mudança' }}"
+          } >> "$GITHUB_STEP_SUMMARY"
