@@ -2,4 +2,4 @@ gspread==6.1.4
 google-auth==2.35.0
 cryptography==43.0.3
 playwright==1.48.0
-pytest==8.3.3
+pytest==9.0.3
