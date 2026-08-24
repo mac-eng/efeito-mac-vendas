@@ -53,8 +53,30 @@ bloco campo a campo, além de conferir a régua da §5.1 e o exemplo da §3.3 do
 Manual. O workflow roda os testes **antes** de mexer nos HTMLs: se as regras
 quebrarem, ele para e não publica número errado.
 
+## Régua de leitura da planilha (desde 24/08/2026)
+
+`scripts/planilha.py` classifica cada linha pela coluna **STATUS**, nesta ordem:
+
+| STATUS | O que acontece |
+| --- | --- |
+| `NÃO` | descartada — desistência ou vaga extra. Não entra em VGV, unidades, curva, prêmio, listagem nem conta corrente. |
+| `EM VALIDAÇÃO` | entra só na `projecao`; fica fora do `realizado` até o sinal compensar. |
+| `VENDA OK` | régua completa. |
+| `VENDA INTERNA` | entra no `realizado`, mas só no volume (ver abaixo). |
+
+**Venda interna** é a linha com `GERENTE = "VENDA INTERNA"`. Ela soma no VGV, nas
+unidades e no % da meta, e paga a Premiação Equipe Comercial (§9) e a verba de
+desconto — mas **não** aparece em ranking nenhum e **não** gera prêmio de corretor
+ou de gerente. No motor isso é o campo `Venda.interna`.
+
+> **Nunca use a coluna `PERÍODO CAMPANHA` como filtro de campanha.** Ela devolve
+> `OK` / `NÃO` sobre a janela de datas, nunca a palavra `CAMPANHA`. Até 24/08/2026
+> o leitor filtrava por ela e descartava **100% das linhas** — o robô abortava com
+> "Nenhuma venda de campanha encontrada" toda segunda e o site ficou congelado nos
+> números de 14/08. A classificação está em `STATUS` e `VENDA VÁLIDA`.
+
 `realizado` conta só vendas com sinal compensado (coluna *VENDAS VÁLIDAS* > 0);
-`projecao` conta tudo que foi lançado no período da campanha.
+`projecao` conta o realizado mais tudo que está em validação.
 
 ## Conta Corrente de Desconto
 
@@ -80,8 +102,8 @@ vez de publicar verba em texto aberto.
 ## Artes .jpg
 
 `scripts/artes.py` abre as próprias páginas do site num Chromium headless, força
-a visão "Projeção · vendas lançadas", congela a auto-rotação dos murais e salva o
-screenshot — 1080×1080 para os rankings, 1080×607 para os murais, iguais aos
+a visão **"Realizado · sinal compensado"**, congela a auto-rotação dos murais e
+salva o screenshot — 1080×1080 para os rankings, 1080×607 para os murais, iguais aos
 arquivos que já estavam publicados. Não há mais arte gerada à mão.
 
 ## Configuração (uma vez só)
@@ -159,7 +181,7 @@ normalmente.
 | `Nenhuma aba com a coluna 'DATA VENDA'` | a estrutura da planilha mudou |
 | `Colunas ausentes na planilha` | alguma coluna foi renomeada |
 | `Senha incorreta: o HMAC do payload não confere` | o `painel.html` foi republicado com outra senha |
-| `Nenhuma venda de campanha encontrada` | a coluna *PERÍODO CAMPANHA* está vazia ou a aba foi zerada |
+| `Nenhuma venda encontrada depois do filtro de STATUS` | a coluna *STATUS* mudou de valores ou a aba foi zerada |
 | `403` / `PERMISSION_DENIED` | a planilha não está compartilhada com a service account |
 | `CONFERÊNCIA NÃO BATEU` | o rateio por share mudou: a soma do *DESCONTO PV* de uma unidade não bate com o quadro de conferência |
 | `Aba de conferência por unidade não encontrada` | a aba com OBRA / UNIDADE / DESCONTO sumiu ou foi renomeada |
@@ -169,9 +191,9 @@ continua no ar.
 
 ## Pontos de atenção
 
-- A meta usada é **R$ 88.516.862 / 73 unidades**, que é a do Manual Operacional e
-  a que já estava no site. O quadro resumo da planilha usa R$ 98.000.000 numa
-  célula própria — se a meta oficial mudar, ajuste `META_VGV` em
+- A meta usada é **R$ 88.516.862 / 73 unidades**, confirmada em 24/08/2026 como a
+  oficial. A aba oculta `Simulação 100%` da planilha traz R$ 98.000.000 numa
+  célula própria — está descartada. Se a meta mudar, ajuste `META_VGV` em
   `scripts/motor.py` e rode os testes.
 - As verbas da conta corrente (R$ 2.080.000 no total) e as unidades de campanha
   estão em `VERBAS`, no topo de `scripts/conta_corrente.py`. Duas pendências

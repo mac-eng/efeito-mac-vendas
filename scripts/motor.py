@@ -158,6 +158,10 @@ class Venda:
     vendas: float       # 1,0 ou 0,5 (venda dividida)
     vgv: float
     valida: bool        # sinal compensado
+    # Venda interna (GERENTE = "VENDA INTERNA" na planilha): entra no VGV, nas
+    # unidades e no % da meta, e paga a Equipe Comercial (§9) — mas não é mérito
+    # de ninguém no salão, então fica fora dos rankings e da régua §4/§5.
+    interna: bool = False
 
     @property
     def b2b(self) -> bool:
@@ -280,11 +284,11 @@ def _cenario(vendas: list[Venda]) -> dict:
     unid_total = round(sum(v.vendas for v in vendas), 2)
     pct = (vgv_total / META_VGV) if META_VGV else 0.0
 
-    # --- corretores (Salão/Online; B2B não entra no ranking de corretor) ---
+    # --- corretores (Salão/Online; B2B e venda interna ficam fora do ranking) ---
     corretores: dict[str, dict] = {}
     por_corretor: dict[str, list[Venda]] = {}
     for v in vendas:
-        if v.b2b or not v.corretor:
+        if v.interna or v.b2b or not v.corretor:
             continue
         por_corretor.setdefault(v.corretor, []).append(v)
 
@@ -299,12 +303,12 @@ def _cenario(vendas: list[Venda]) -> dict:
             "detalhe": detalhe,
         }
 
-    # --- gerentes (agregado da equipe, todos os canais) ---
+    # --- gerentes (agregado da equipe, todos os canais; sem venda interna) ---
     gerentes: dict[str, dict] = {}
     parcerias: dict[str, dict] = {}
     por_gerente: dict[str, list[Venda]] = {}
     for v in vendas:
-        if not v.gerente:
+        if v.interna or not v.gerente:
             continue
         por_gerente.setdefault(v.gerente, []).append(v)
 
@@ -340,7 +344,7 @@ def _cenario(vendas: list[Venda]) -> dict:
                 "corretores": sorted(agrupado.values(), key=lambda c: c["nome"]),
             }
 
-    # --- §9 Equipe Comercial ---
+    # --- §9 Equipe Comercial (venda interna entra: é VGV da carteira) ---
     vgv_bruno = sum(v.vgv for v in vendas if v.produto in CARTEIRA_BRUNO)
     vgv_danilo = sum(v.vgv for v in vendas if v.produto in CARTEIRA_DANILO)
     comercial = {
@@ -372,8 +376,16 @@ def montar_data(vendas: list[Venda]) -> dict:
     """
     Monta o dicionário DATA completo consumido pelos HTMLs.
 
-    `realizado` = só vendas com sinal compensado.
-    `projecao`  = todas as vendas lançadas no período da campanha.
+    `realizado` = só vendas com sinal compensado (STATUS "VENDA OK" ou
+                  "VENDA INTERNA" na planilha).
+    `projecao`  = tudo que foi lançado e não foi descartado, ou seja, o realizado
+                  mais o que está "EM VALIDAÇÃO". Linhas com STATUS "NÃO"
+                  (desistência, vaga extra) já vêm filtradas pelo leitor e não
+                  chegam aqui.
+
+    Em ambos os cenários a venda interna soma no VGV, nas unidades e no % da
+    meta, e paga a Equipe Comercial — mas não aparece em ranking nenhum nem
+    gera prêmio de corretor ou gerente.
     """
     validas = [v for v in vendas if v.valida]
     return {

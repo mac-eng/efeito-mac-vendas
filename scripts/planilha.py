@@ -22,7 +22,18 @@ from motor import Venda, nome_corretor, nome_produto
 ESCOPOS = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
 COL_DATA = "DATA VENDA"
-OBRIGATORIAS = [COL_DATA, "OBRA", "VGV", "VENDAS", "GERENTE", "CORRETOR"]
+OBRIGATORIAS = [COL_DATA, "OBRA", "VGV", "VENDAS", "GERENTE", "CORRETOR", "STATUS"]
+
+# Régua de leitura vigente desde 24/08/2026 (ver AUTOMACAO.md).
+# A coluna STATUS classifica a linha; "NÃO" (desistência, vaga extra) descarta.
+# NÃO usar "PERÍODO CAMPANHA" como filtro: ela devolve OK/NÃO sobre a janela de
+# datas, nunca "CAMPANHA" — usá-la aqui zerava a base inteira.
+STATUS_DESCARTA = "NAO"
+GERENTE_INTERNA = "VENDA INTERNA"
+
+
+def _descarta(status: str) -> bool:
+    return _chave(status) == STATUS_DESCARTA
 
 
 def _chave(texto: str) -> str:
@@ -104,31 +115,37 @@ def carregar_vendas(sheet_id: str) -> list[Venda]:
         if not obra or not str(campo(linha, COL_DATA)).strip():
             continue
 
-        # Só o que está marcado como período da campanha.
-        periodo = _chave(str(campo(linha, "PERÍODO CAMPANHA", "CAMPANHA")))
-        if periodo and periodo != "CAMPANHA":
+        # STATUS "NÃO" sai de tudo: não entra em VGV, unidades, curva nem prêmio.
+        if _descarta(str(campo(linha, "STATUS"))):
             continue
 
         qtd = _numero(campo(linha, "VENDAS"))
         if qtd <= 0:
             continue
 
+        gerente = str(campo(linha, "GERENTE")).strip().upper()
+
         vendas.append(
             Venda(
                 produto=nome_produto(obra),
                 unidade=str(campo(linha, "UNIDADE")).strip(),
                 corretor=nome_corretor(str(campo(linha, "CORRETOR"))),
-                gerente=str(campo(linha, "GERENTE")).strip().upper(),
+                gerente=gerente,
                 canal=str(campo(linha, "CANAL VENDAS")).strip().upper(),
                 vendas=qtd,
                 vgv=_numero(campo(linha, "VGV")),
                 # Sinal compensado: a planilha zera "VENDAS VÁLIDAS" até o sinal cair.
                 valida=_numero(campo(linha, "VENDAS VÁLIDAS")) > 0,
+                interna=_chave(gerente) == GERENTE_INTERNA,
             )
         )
 
     if not vendas:
-        raise RuntimeError("Nenhuma venda de campanha encontrada — abortando sem alterar o site.")
+        raise RuntimeError(
+            "Nenhuma venda encontrada depois do filtro de STATUS — abortando sem "
+            "alterar o site. Confira se a coluna STATUS ainda devolve "
+            "'VENDA OK' / 'EM VALIDAÇÃO' / 'VENDA INTERNA' / 'NÃO'."
+        )
     return vendas
 
 
@@ -163,18 +180,28 @@ def carregar_conta_corrente(sheet_id: str):
         return linha[i]
 
     lancamentos = []
+    # Unidades cujas linhas foram descartadas por STATUS "NÃO". O quadro por
+    # unidade ainda traz o desconto delas; se não as tirássemos da conferência,
+    # ela acusaria divergência e o robô abortaria sem publicar.
+    descartadas: dict[tuple[str, str], int] = {}
+    mantidas: set[tuple[str, str]] = set()
+
     for linha in tabela[linha_cabecalho + 1:]:
         obra = str(campo(linha, "OBRA")).strip()
         data = str(campo(linha, COL_DATA)).strip()
         if not obra or not data:
             continue
-        periodo = _chave(str(campo(linha, "PERÍODO CAMPANHA", "CAMPANHA")))
-        if periodo and periodo != "CAMPANHA":
+        chave = (nome_produto(obra), str(campo(linha, "UNIDADE")).strip())
+        # Desistência e vaga extra não consomem verba de desconto. Venda interna
+        # consome normalmente: se o VGV conta, o desconto saiu da mesma verba.
+        if _descarta(str(campo(linha, "STATUS"))):
+            descartadas[chave] = descartadas.get(chave, 0) + 1
             continue
         share = _numero(campo(linha, "VENDAS"))
         if share <= 0:
             continue
 
+        mantidas.add(chave)
         lancamentos.append(
             Lancamento(
                 data=data,
@@ -190,7 +217,16 @@ def carregar_conta_corrente(sheet_id: str):
             )
         )
 
-    return lancamentos, _quadro_por_unidade(planilha)
+    quadro = _quadro_por_unidade(planilha)
+    # Tira da conferência só as unidades 100% descartadas. Unidade meio
+    # descartada (uma metade desistiu, a outra não) FICA no quadro de propósito:
+    # aí a divergência é real e tem de aparecer, não ser varrida para baixo do
+    # tapete.
+    for chave, _ in descartadas.items():
+        if chave not in mantidas:
+            quadro.pop(chave, None)
+
+    return lancamentos, quadro
 
 
 def _quadro_por_unidade(planilha) -> dict[tuple[str, float], float]:

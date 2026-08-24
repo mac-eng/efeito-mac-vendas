@@ -2,9 +2,13 @@
 """
 Gera as artes .jpg da campanha a partir das próprias páginas do site.
 
-Abre cada HTML num Chromium headless, força a visão "Projeção · vendas
-lançadas" (que é a exibida nas artes históricas), espera as fontes carregarem e
-salva o screenshot no mesmo tamanho dos arquivos que já estavam no repositório.
+Abre cada HTML num Chromium headless, força a visão "Realizado · sinal
+compensado", espera as fontes carregarem e salva o screenshot no mesmo tamanho
+dos arquivos que já estavam no repositório.
+
+Até 24/08/2026 as artes saíam na visão de projeção, que soma tudo que está em
+validação como se fosse virar venda — mais da metade do número, na prática. O
+placar que vai para o time passou a ser o realizado.
 
   python scripts/artes.py                # gera as 4 artes
   python scripts/artes.py --so-mudadas   # só regrava se a imagem mudou de fato
@@ -28,14 +32,14 @@ ARTES = [
     ("mural-gerentes.html", "mural-gerentes.jpg", 1080, 607),
 ]
 
-# Fixa a visão de projeção e congela a auto-rotação do mural, para o screenshot
+# Fixa a visão de realizado e congela a auto-rotação do mural, para o screenshot
 # não depender do instante em que foi tirado.
 PREPARAR = """
 () => {
   for (let i = 1; i < 100000; i++) window.clearInterval(i);
-  if (typeof setView === 'function') setView('projecao');
+  if (typeof setView === 'function') setView('realizado');
   const rot = document.getElementById('rot');
-  if (rot && rot.style.display !== 'none') rot.textContent = 'PRÉVIA · vendas lançadas';
+  if (rot && rot.style.display !== 'none') rot.textContent = 'REALIZADO · sinal compensado';
 }
 """
 

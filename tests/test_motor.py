@@ -141,6 +141,46 @@ def test_tabela_5_1_autoria_sozinha():
         assert data["gerentes"]["G"]["premiacao"] == ger, f"{unidades} un. (gerente)"
 
 
+def test_venda_interna_conta_no_vgv_mas_nao_premia():
+    """
+    Régua de 24/08/2026: venda interna soma no VGV, nas unidades e no % da meta,
+    e paga a Equipe Comercial — mas não entra em ranking nem gera prêmio de
+    corretor ou gerente.
+    """
+    normal = Venda(produto="Autoria MAC", unidade="1", corretor="X", gerente="G",
+                   canal="SALÃO", vendas=1.0, vgv=400_000.0, valida=True)
+    interna = Venda(produto="Autoria MAC", unidade="1708", corretor="VENDA INTERNA",
+                    gerente="VENDA INTERNA", canal="VENDA INTERNA",
+                    vendas=1.0, vgv=555_000.0, valida=True, interna=True)
+
+    cenario = montar_data([normal, interna])["realizado"]
+
+    # Volume e curva incluem a interna.
+    assert cenario["vgv_total"] == 955_000.0
+    assert cenario["unid_total"] == 2.0
+
+    # Rankings, não.
+    assert list(cenario["corretores"]) == ["X"]
+    assert list(cenario["gerentes"]) == ["G"]
+    assert cenario["corretores"]["X"]["vgv"] == 400_000.0
+    assert cenario["gerentes"]["G"]["vgv"] == 400_000.0
+
+    # §9 — Equipe Comercial recebe sobre o VGV cheio, interna incluída.
+    assert cenario["comercial"]["Luiz"] == 955.0
+    assert cenario["comercial"]["Danilo"] == 955.0
+
+
+def test_venda_interna_sozinha_nao_cria_ranking_fantasma():
+    """Uma base só de vendas internas não pode inventar 'VENDA INTERNA' no pódio."""
+    interna = Venda(produto="Autoria MAC", unidade="1709", corretor="VENDA INTERNA",
+                    gerente="VENDA INTERNA", canal="VENDA INTERNA",
+                    vendas=1.0, vgv=555_000.0, valida=True, interna=True)
+    cenario = montar_data([interna])["realizado"]
+    assert cenario["corretores"] == {}
+    assert cenario["gerentes"] == {}
+    assert cenario["vgv_total"] == 555_000.0
+
+
 def test_exemplo_3_3_mac_pinheiros():
     """§3.3 — exemplo passo a passo do Manual, 1 unidade de Mac Pinheiros."""
     casos = {0: (6000, 4000), 1: (10000, 7000), 2: (12000, 8000), 3: (16000, 11000)}
