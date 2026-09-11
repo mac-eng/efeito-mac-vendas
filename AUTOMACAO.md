@@ -1,7 +1,7 @@
-# Automação dos números da campanha Efeito MAC
+# Como os números da campanha Efeito MAC vão para o ar
 
 O site é publicado por GitHub Pages a partir da branch `main`. Os números vivem
-num bloco `const DATA = {...}` dentro de cinco arquivos:
+num bloco `const DATA = {...}` dentro de seis arquivos:
 
 | Arquivo | Conteúdo |
 | --- | --- |
@@ -12,31 +12,41 @@ num bloco `const DATA = {...}` dentro de cinco arquivos:
 | `painel.html` | Painel completo — **criptografado com StatiCrypt** |
 | `conta-corrente.html` | Conta Corrente de Desconto — **criptografado com StatiCrypt** |
 
-Toda segunda às 09:30 (Brasília), o GitHub Actions lê a planilha
-**"Campanha Estoque - Geral - BP17"** no Drive e, numa tacada só: recalcula a
-premiação e reescreve os cinco HTMLs de ranking; confere e regera a Conta
-Corrente de Desconto; tira o screenshot das quatro artes `.jpg`; e commita tudo
-na `main`. O Pages publica sozinho.
+**O site é estático e o repositório não fala com o Google.** Não há robô, não há
+service account, não há secret de credencial. Os HTMLs já chegam à `main` com os
+números dentro — quem lê a planilha, calcula e gera os arquivos é o Cowork, com o
+acesso do próprio usuário; quem publica é a Mari, subindo a versão do dia.
 
-**Não há mais push manual.** Nada disso depende de nenhum computador ligado.
+> **Por que assim.** Até 11/09/2026 existia um workflow (`Atualiza números da
+> campanha`) que rodaria às 09:30, leria a planilha com uma service account e
+> commitaria sozinho. Ele **nunca funcionou**: o secret `GOOGLE_SERVICE_ACCOUNT_JSON`
+> nunca foi criado (o log da run de 31/08 morre em `RuntimeError: GOOGLE_SERVICE_ACCOUNT_JSON
+> não definido`) e a service account nunca entrou no compartilhamento da planilha.
+> Em 10/09/2026 o Fabio avaliou que liberar esse acesso não seria seguro, e a
+> decisão foi tirar o robô do caminho em vez de destravá-lo. O workflow e o
+> `scripts/planilha.py` foram removidos em 11/09/2026 — estão no histórico do Git
+> se um dia houver um caminho seguro para voltar atrás.
 
-## Como as segundas ficaram
+## O ciclo, hoje
 
-| Horário (Brasília) | Quem | O que faz |
-| --- | --- | --- |
-| 09:30 | GitHub Actions | Publica: números, conta corrente e artes. Commita sozinho. |
-| 10:00 | Cowork — *conferir a publicação* | Compara o site com a planilha. Se o robô falhou, te avisa no celular. |
-| 10:15 | Cowork — *e-mail de ranking* | Rascunho no Gmail a partir do que está no ar. Não gera arquivo. |
-| 10:30 | Cowork — *e-mail de conta corrente* | Rascunho no Gmail para Isaac e Luiz. Não gera arquivo. |
+| Quem | O que faz |
+| --- | --- |
+| **Cowork** (segundas e quintas, 10:00) | Lê a planilha no Drive, recalcula tudo do zero, roda os scripts, gera os 6 HTMLs e as 4 artes, e entrega um `.zip`. |
+| **Mari** | Descompacta o `.zip` e sobe os **10 arquivos** (não o `.zip`) na `main`. O Pages publica sozinho. |
+| **Cowork** | Deixa os dois rascunhos de e-mail no Gmail, com os mesmos números. |
 
-A ordem é deliberada: **publica → confere → comunica**. As duas tarefas de e-mail
-checam o carimbo "Atualizado em" antes de escrever; se o robô das 09:30 falhou,
-elas não criam rascunho com número velho.
+A ordem importa: **gera → publica → comunica.** Os e-mails levam os números do
+Cowork, que são a fonte da verdade; se o site ainda não tiver sido republicado, o
+resumo avisa e o e-mail não deve sair antes.
 
-> **Atenção ao seu clone local.** A partir da primeira execução do workflow, o
-> robô passa a commitar na `main`. Seu `C:\Git\efeito-mac-vendas` fica atrás do
-> origin. Antes de qualquer push seu, rode `git pull` — senão o Git recusa.
-> No dia a dia você não precisa mais mexer no repositório.
+**Como subir:** o caminho mais curto é
+<https://github.com/mac-eng/efeito-mac-vendas/upload/main>, que já abre a tela de
+upload. Arraste os 10 arquivos, escreva a mensagem, deixe marcado *Commit directly
+to the main branch* e clique em *Commit changes*. Arrastar o `.zip` fechado não
+publica nada.
+
+> **Atenção ao clone local.** Se você também mexe no `C:\Git\efeito-mac-vendas`,
+> rode `git pull` antes de qualquer push — senão o Git recusa.
 
 ## Como o cálculo é feito
 
@@ -50,12 +60,13 @@ por Performance a partir de 80% da meta (§7) e a Premiação Equipe Comercial (
 `tests/test_motor.py` guarda as 7 vendas lançadas até 14/08/2026 e o `DATA` que
 estava publicado no site naquele dia. O teste exige que o motor reproduza aquele
 bloco campo a campo, além de conferir a régua da §5.1 e o exemplo da §3.3 do
-Manual. O workflow roda os testes **antes** de mexer nos HTMLs: se as regras
-quebrarem, ele para e não publica número errado.
+Manual. **Rode os testes antes de gerar** — se as regras quebrarem, é melhor não
+publicar do que publicar número errado.
 
 ## Régua de leitura da planilha (desde 24/08/2026)
 
-`scripts/planilha.py` classifica cada linha pela coluna **STATUS**, nesta ordem:
+Vale para quem monta o JSON. Cada linha é classificada pela coluna **STATUS**,
+nesta ordem:
 
 | STATUS | O que acontece |
 | --- | --- |
@@ -64,6 +75,9 @@ quebrarem, ele para e não publica número errado.
 | `VENDA OK` | régua completa. |
 | `VENDA INTERNA` | entra no `realizado`, mas só no volume (ver abaixo). |
 
+É uma linha por corretor: venda dividida vira duas linhas de 0,5, com VGV e
+DESCONTO PV já rateados por share. **Some as linhas, nunca deduplique.**
+
 **Venda interna** é a linha com `GERENTE = "VENDA INTERNA"`. Ela soma no VGV, nas
 unidades e no % da meta, e paga a Premiação Equipe Comercial (§9) e a verba de
 desconto — mas **não** aparece em ranking nenhum e **não** gera prêmio de corretor
@@ -71,9 +85,12 @@ ou de gerente. No motor isso é o campo `Venda.interna`.
 
 > **Nunca use a coluna `PERÍODO CAMPANHA` como filtro de campanha.** Ela devolve
 > `OK` / `NÃO` sobre a janela de datas, nunca a palavra `CAMPANHA`. Até 24/08/2026
-> o leitor filtrava por ela e descartava **100% das linhas** — o robô abortava com
-> "Nenhuma venda de campanha encontrada" toda segunda e o site ficou congelado nos
-> números de 14/08. A classificação está em `STATUS` e `VENDA VÁLIDA`.
+> o leitor filtrava por ela e descartava **100% das linhas** — o site ficou
+> congelado nos números de 14/08. A classificação está em `STATUS` e `VENDA VÁLIDA`.
+
+**Linhas mudam de status entre execuções.** Uma venda "EM VALIDAÇÃO" pode virar
+"NÃO" (foi o que aconteceu com o Mac Campo Belo un. 24 entre 07/09 e 10/09).
+Recalcule sempre do zero; nunca reaproveite número de execução anterior.
 
 `realizado` conta só vendas com sinal compensado (coluna *VENDAS VÁLIDAS* > 0);
 `projecao` conta o realizado mais tudo que está em validação.
@@ -91,10 +108,16 @@ por outro modelo e o script nunca inventa verba para eles.
 O *ritmo* compara a % da verba consumida com a % das unidades vendidas: em folga,
 atenção (até 10 p.p. à frente), acelerado, estouro.
 
+> **O campo `obra` do lançamento tem de vir com o rótulo do site** — `Autoria MAC`,
+> `Mac Brooklin`, `Mac Vila Clementino`, `Mac Vila Mariana` —, e não com o nome em
+> caixa alta da planilha. Use `motor.nome_produto()` para converter. Com o nome
+> errado o script não reclama: ele joga tudo em "produtos de fora" e o consumo sai
+> **R$ 0,00**.
+
 **A conferência por unidade roda antes de tudo:** a soma do `DESCONTO PV` das
 linhas de cada unidade tem de bater com a aba de conferência. Se não bater, o
-rateio por share mudou na planilha — o script sai com erro e o workflow falha
-**sem commitar**. Número de verba não vai para a diretoria sem conferir.
+rateio por share mudou na planilha — o script sai com erro **sem gravar nada**.
+Número de verba não vai para a diretoria sem conferir.
 
 O painel sai sempre criptografado. Sem `STATICRYPT_PASSWORD` o script aborta, em
 vez de publicar verba em texto aberto.
@@ -103,67 +126,41 @@ vez de publicar verba em texto aberto.
 
 `scripts/artes.py` abre as próprias páginas do site num Chromium headless, força
 a visão **"Realizado · sinal compensado"**, congela a auto-rotação dos murais e
-salva o screenshot — 1080×1080 para os rankings, 1080×607 para os murais, iguais aos
-arquivos que já estavam publicados. Não há mais arte gerada à mão.
+salva o screenshot — 1080×1080 para os rankings, 1080×607 para os murais. O número
+grande da arte é sempre o **realizado**; confira isso antes de entregar.
 
-## Configuração (uma vez só)
+Se o Playwright não achar o Chromium sozinho, aponte o caminho por variável de
+ambiente em vez de editar o script:
 
-### 1. Service account do Google
-
-1. No [Google Cloud Console](https://console.cloud.google.com/), crie um projeto
-   (ou use um existente) e ative a **Google Sheets API**.
-2. Em *IAM e administrador > Contas de serviço*, crie uma conta de serviço —
-   sugestão de nome: `efeito-mac-site`.
-3. Na conta criada, aba *Chaves*, **Adicionar chave > Criar nova chave > JSON**.
-   Baixe o arquivo.
-4. Copie o e-mail da conta (algo como
-   `efeito-mac-site@<projeto>.iam.gserviceaccount.com`) e **compartilhe a planilha
-   com esse e-mail como Leitor**. Sem esse passo o robô não enxerga a planilha.
-
-### 2. Secrets e variáveis no GitHub
-
-Em *Settings > Secrets and variables > Actions* do repositório:
-
-**Secrets** (aba *Secrets*):
-
-| Nome | Valor |
-| --- | --- |
-| `GOOGLE_SERVICE_ACCOUNT_JSON` | conteúdo inteiro do arquivo JSON baixado |
-| `STATICRYPT_PASSWORD` | senha do `painel.html` |
-
-**Variável** (aba *Variables*):
-
-| Nome | Valor |
-| --- | --- |
-| `SHEET_ID` | `1KkpBhKvUL6nxIovp8ukP5ZlnhLzNPW910UifvmzHVXo` |
-
-### 3. Permissão de escrita para o Actions
-
-Em *Settings > Actions > General > Workflow permissions*, marque
-**Read and write permissions**. É o que autoriza o robô a commitar.
-
-### 4. Primeiro teste
-
-Na aba **Actions > Atualiza números da campanha > Run workflow**. O log mostra o
-realizado, a projeção e quais arquivos mudaram.
+```bash
+export PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell
+```
 
 ## Rodar na mão
 
 ```bash
 pip install -r scripts/requirements.txt
-
-export SHEET_ID=1KkpBhKvUL6nxIovp8ukP5ZlnhLzNPW910UifvmzHVXo
-export GOOGLE_SERVICE_ACCOUNT_JSON="$(cat caminho/para/credencial.json)"
 export STATICRYPT_PASSWORD='...'
 
-python scripts/atualiza.py --dry-run              # mostra o que mudaria, sem gravar
-python scripts/atualiza.py                        # números dos rankings e do painel
-python scripts/atualiza_conta_corrente.py         # conta corrente
-python scripts/artes.py --so-mudadas              # artes .jpg
+python -m pytest tests/ -q                                              # 1. as regras ainda valem?
+python scripts/atualiza.py --json vendas.json                           # 2. rankings, murais e painel
+python scripts/atualiza_conta_corrente.py --json lanc.json \
+                                          --quadro quadro.json          # 3. conta corrente
+python scripts/artes.py                                                 # 4. artes .jpg
 ```
 
-Para as artes é preciso ter o Chromium do Playwright: `python -m playwright
-install chromium`.
+Os três JSONs são montados a partir da planilha e seguem as dataclasses do
+próprio repositório:
+
+| Arquivo | Formato | Campos |
+| --- | --- | --- |
+| `vendas.json` | `motor.Venda` | `produto` (via `nome_produto`), `unidade`, `corretor` (via `nome_corretor`), `gerente`, `canal`, `vendas`, `vgv`, `valida`, `interna` |
+| `lanc.json` | `conta_corrente.Lancamento` | `data`, `obra` (via `nome_produto`), `unidade`, `corretor`, `gerente`, `canal`, `share`, `vgv`, `desconto`, `sinal_compensado` |
+| `quadro.json` | quadro por unidade | `obra`, `unidade`, `desconto` |
+
+Em todos eles, as linhas com STATUS `NÃO` ficam **de fora**.
+
+Para as artes é preciso o Chromium do Playwright: `python -m playwright install chromium`.
 
 ## Sobre o painel.html
 
@@ -171,22 +168,25 @@ O `painel.html` é criptografado com StatiCrypt. `scripts/staticrypt.py` reprodu
 o esquema em Python: descriptografa o payload, troca o bloco `DATA` e
 re-criptografa **preservando o mesmo salt** — os "remember me" já salvos nos
 navegadores do time continuam valendo. Se `STATICRYPT_PASSWORD` não estiver
-definida, o painel é pulado e os outros quatro arquivos são atualizados
-normalmente.
+definida, o painel é pulado e os outros arquivos são atualizados normalmente.
+
+> **O repositório é público.** O StatiCrypt é criptografia do lado do cliente: a
+> senha protege contra quem abre o link por acaso, não contra quem quiser
+> trabalhar em cima do arquivo. Não trate o `painel.html` nem o
+> `conta-corrente.html` como confidenciais de verdade.
 
 ## Quando algo quebrar
 
-| Sintoma no log | Causa provável |
+| Sintoma | Causa provável |
 | --- | --- |
-| `Nenhuma aba com a coluna 'DATA VENDA'` | a estrutura da planilha mudou |
-| `Colunas ausentes na planilha` | alguma coluna foi renomeada |
-| `Senha incorreta: o HMAC do payload não confere` | o `painel.html` foi republicado com outra senha |
-| `Nenhuma venda encontrada depois do filtro de STATUS` | a coluna *STATUS* mudou de valores ou a aba foi zerada |
-| `403` / `PERMISSION_DENIED` | a planilha não está compartilhada com a service account |
 | `CONFERÊNCIA NÃO BATEU` | o rateio por share mudou: a soma do *DESCONTO PV* de uma unidade não bate com o quadro de conferência |
-| `Aba de conferência por unidade não encontrada` | a aba com OBRA / UNIDADE / DESCONTO sumiu ou foi renomeada |
+| consumo da conta corrente sai `R$ 0,00` | o campo `obra` dos lançamentos veio em caixa alta, fora do rótulo do site |
+| `Senha incorreta: o HMAC do payload não confere` | o `painel.html` foi republicado com outra senha |
+| `bloco 'const DATA = {...}' não encontrado` | o HTML foi editado à mão e perdeu o marcador |
+| teste do motor falhando | alguma regra de premiação mudou sem atualizar `tests/test_motor.py` |
+| site com carimbo velho | o `.zip` não foi publicado, ou subiu fechado em vez dos 10 arquivos |
 
-Em todos esses casos o robô **aborta sem alterar o site** — o que está no ar
+Nos casos de erro os scripts **abortam sem alterar os HTMLs** — o que está no ar
 continua no ar.
 
 ## Pontos de atenção
@@ -202,3 +202,5 @@ continua no ar.
 - Nomes de corretor saem da coluna *CORRETOR* (`"CINTIA - CINTIA DE OLIVEIRA ROSA"`
   vira `CINTIA`; razões sociais perdem os sufixos de PJ). Para forçar um apelido
   específico, use o parâmetro `apelidos` de `nome_corretor`.
+- Planilha: `1KkpBhKvUL6nxIovp8ukP5ZlnhLzNPW910UifvmzHVXo` — *Campanha Estoque -
+  Geral - BP17*, aba **Lista Vendas - Campanha**.

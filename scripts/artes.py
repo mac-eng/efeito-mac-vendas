@@ -17,6 +17,7 @@ placar que vai para o time passou a ser o realizado.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -48,7 +49,15 @@ def gerar(raiz: Path, so_mudadas: bool = False) -> list[str]:
     alteradas: list[str] = []
 
     with sync_playwright() as p:
-        navegador = p.chromium.launch(args=["--force-color-profile=srgb", "--font-render-hinting=none"])
+        # Em alguns ambientes o Playwright não acha o Chromium sozinho (o do
+        # Cowork, por exemplo, fica fora do caminho padrão). Nesses casos basta
+        # exportar PLAYWRIGHT_CHROMIUM_PATH apontando para o executável, em vez
+        # de editar este arquivo na mão a cada rodada.
+        executavel = os.environ.get("PLAYWRIGHT_CHROMIUM_PATH") or None
+        navegador = p.chromium.launch(
+            executable_path=executavel,
+            args=["--force-color-profile=srgb", "--font-render-hinting=none"],
+        )
         try:
             for html, jpg, largura, altura in ARTES:
                 origem = raiz / html

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
-Atualiza os números do site da campanha Efeito MAC a partir da planilha do Drive.
+Atualiza os números do site da campanha Efeito MAC a partir de um JSON de vendas.
 
-  python scripts/atualiza.py                 # lê a planilha e grava os HTMLs
-  python scripts/atualiza.py --dry-run       # só mostra o que mudaria
-  python scripts/atualiza.py --json dados.json   # usa um JSON local em vez do Drive
+O site é estático: o repositório NÃO fala com o Google Drive. Quem lê a planilha
+é o Cowork (com o acesso da própria Mari), que monta o JSON e roda este script.
+Ver AUTOMACAO.md.
+
+  python scripts/atualiza.py --json vendas.json             # grava os HTMLs
+  python scripts/atualiza.py --json vendas.json --dry-run   # só mostra o que mudaria
 
 Variáveis de ambiente:
-  SHEET_ID                      id da planilha no Drive (obrigatório)
-  GOOGLE_SERVICE_ACCOUNT_JSON   credencial da service account (obrigatório)
   STATICRYPT_PASSWORD           senha do painel.html (opcional; sem ela o painel
                                 é pulado e os demais arquivos são atualizados)
 """
@@ -63,23 +64,16 @@ def _substituir(html: str, data_json: str, agora: datetime) -> tuple[str, int]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true", help="não grava nada")
-    ap.add_argument("--json", help="lê as vendas de um JSON local (para testes)")
+    ap.add_argument("--json", required=True,
+                    help="arquivo JSON com as vendas (obrigatório)")
     ap.add_argument("--raiz", default=str(RAIZ), help="pasta do repositório")
     args = ap.parse_args()
 
     raiz = Path(args.raiz)
     agora = datetime.now(FUSO_SP)
 
-    if args.json:
-        from motor import Venda
-        vendas = [Venda(**linha) for linha in json.loads(Path(args.json).read_text("utf-8"))]
-    else:
-        from planilha import carregar_vendas
-        sheet_id = os.environ.get("SHEET_ID")
-        if not sheet_id:
-            print("erro: SHEET_ID não definido", file=sys.stderr)
-            return 2
-        vendas = carregar_vendas(sheet_id)
+    from motor import Venda
+    vendas = [Venda(**linha) for linha in json.loads(Path(args.json).read_text("utf-8"))]
 
     data = montar_data(vendas)
     data_json = json.dumps(data, ensure_ascii=False, separators=(", ", ": "))

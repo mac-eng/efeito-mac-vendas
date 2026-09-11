@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """
-Gera o painel conta-corrente.html a partir da planilha do Drive.
+Gera o painel conta-corrente.html a partir de JSONs de lançamentos.
+
+O site é estático: o repositório NÃO fala com o Google Drive. Quem lê a planilha
+é o Cowork (com o acesso da própria Mari), que monta os JSONs e roda este
+script. Ver AUTOMACAO.md.
 
 A conferência por unidade roda ANTES de qualquer coisa: se a soma dos
 lançamentos não bater com o quadro por unidade, o rateio por share mudou na
 planilha e o script aborta sem gravar nada — número de verba não vai para a
 diretoria sem conferir.
 
-  python scripts/atualiza_conta_corrente.py
-  python scripts/atualiza_conta_corrente.py --json vendas.json --quadro quadro.json
+  python scripts/atualiza_conta_corrente.py --json lanc.json --quadro quadro.json
 """
 
 from __future__ import annotations
@@ -35,25 +38,19 @@ FUSO_SP = timezone(timedelta(hours=-3))
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--raiz", default=str(RAIZ))
-    ap.add_argument("--json", help="lançamentos de um arquivo local (testes)")
-    ap.add_argument("--quadro", help="quadro por unidade de um arquivo local (testes)")
+    ap.add_argument("--json", required=True,
+                    help="arquivo JSON com os lançamentos (obrigatório)")
+    ap.add_argument("--quadro", required=True,
+                    help="arquivo JSON com o quadro por unidade (obrigatório)")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
     raiz = Path(args.raiz)
     agora = datetime.now(FUSO_SP)
 
-    if args.json:
-        lancamentos = [Lancamento(**l) for l in json.loads(Path(args.json).read_text("utf-8"))]
-        bruto = json.loads(Path(args.quadro).read_text("utf-8")) if args.quadro else []
-        quadro = {(q["obra"], str(q["unidade"])): q["desconto"] for q in bruto}
-    else:
-        from planilha import carregar_conta_corrente
-        sheet_id = os.environ.get("SHEET_ID")
-        if not sheet_id:
-            print("erro: SHEET_ID não definido", file=sys.stderr)
-            return 2
-        lancamentos, quadro = carregar_conta_corrente(sheet_id)
+    lancamentos = [Lancamento(**l) for l in json.loads(Path(args.json).read_text("utf-8"))]
+    bruto = json.loads(Path(args.quadro).read_text("utf-8"))
+    quadro = {(q["obra"], str(q["unidade"])): q["desconto"] for q in bruto}
 
     # --- conferência obrigatória ---
     problemas = conferir(lancamentos, quadro)
