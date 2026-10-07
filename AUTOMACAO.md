@@ -57,6 +57,8 @@ kicker de 20% a partir da 3ª Autoria (§3.2), split 60/40 entre corretor e gere
 de R$ 2.000 por venda (§4.3), bônus de volume da Autoria sozinha (§5), Prêmio Extra
 por Performance a partir de 80% da meta (§7) e a Premiação Equipe Comercial (§9).
 
+**Gerente, régua de 07/10/2026:** cada produto premium da equipe é calculado em separado, combinado com todas as Autorias do gerente, e arredondado por produto (matriz produto x Autoria do Material Completo). Ex.: Diego, 2 Autorias + Vila Clementino + Brooklin + Pinheiros = 8.000 + 7.000 + 8.000. Gerente só com Autoria segue a tabela §5.1. Metades (0,5) só contam quando fecham uma unidade inteira do mesmo produto para o mesmo gerente.
+
 `tests/test_motor.py` guarda as 7 vendas lançadas até 14/08/2026 e o `DATA` que
 estava publicado no site naquele dia. O teste exige que o motor reproduza aquele
 bloco campo a campo, além de conferir a régua da §5.1 e o exemplo da §3.3 do

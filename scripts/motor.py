@@ -263,17 +263,43 @@ def _premiacao_corretor(vendas: list[Venda]) -> tuple[int, list[str]]:
 def _premiacao_gerente(vendas: list[Venda]) -> tuple[int, list[str]]:
     """
     §4.2 — o "bloco" do gerente é a produção agregada da equipe no período.
-    Uma única Autoria de qualquer corretor libera o preço cheio de todos os
-    produtos premium vendidos pela equipe. Sem bônus de volume (§5, FAQ) e sem
-    a nota de fração descartada, que é informação de corretor.
+
+    Régua de 07/10/2026 (matriz produto x Autoria do Material Completo): cada
+    produto premium é calculado separadamente, combinado com TODAS as Autorias
+    da equipe, e arredondado por produto. Assim, com 2 Autorias, cada produto
+    premium paga a célula "2 Aut." da matriz (ex.: Pinheiros 1 un. + 2 Aut. =
+    R$ 8.000 de gerente), e o valor das Autorias já está dentro de cada célula.
+
+    Frações (0,5) só contam quando, somadas no mesmo produto para o mesmo
+    gerente, fecham uma unidade inteira (ver _unidades_fechadas).
+
+    Sem bônus de volume (§5, FAQ) e sem a nota de fração descartada, que é
+    informação de corretor.
     """
     fechadas, _ = _unidades_fechadas(vendas)
     if not fechadas:
         return 0, []
 
-    pool, rotulo, _so_autoria = _pool_produtos(fechadas)
-    total = arredonda_milhar(pool * SPLIT_GERENTE)
-    return total, [f"{rotulo} -> {_fmt_moeda(total)}"]
+    autorias = fechadas.get(AUTORIA, 0)
+    premium = {p: q for p, q in fechadas.items() if p != AUTORIA}
+
+    if not premium:
+        # Só Autoria: tabela §5.1, valor fixo sem retenção e sem kicker.
+        pool, rotulo, _so_autoria = _pool_produtos(fechadas)
+        total = arredonda_milhar(pool * SPLIT_GERENTE)
+        return total, [f"{rotulo} -> {_fmt_moeda(total)}"]
+
+    total = 0
+    detalhe = []
+    for produto, qtd in premium.items():
+        bloco = {produto: qtd}
+        if autorias:
+            bloco[AUTORIA] = autorias
+        pool, rotulo, _so_autoria = _pool_produtos(bloco)
+        valor = arredonda_milhar(pool * SPLIT_GERENTE)
+        total += valor
+        detalhe.append(f"{rotulo} -> {_fmt_moeda(valor)}")
+    return total, detalhe
 
 
 # ------------------------------------------------------------------ cenário

@@ -195,3 +195,47 @@ def test_exemplo_3_3_mac_pinheiros():
         data = montar_data(vendas)["realizado"]
         assert data["corretores"]["X"]["premiacao"] == corr, f"+{autorias} Autoria (corretor)"
         assert data["gerentes"]["G"]["premiacao"] == ger, f"+{autorias} Autoria (gerente)"
+
+
+def _venda(produto, unidade, gerente, vendas=1.0, corretor="X", canal="PARCERIAS"):
+    return Venda(produto=produto, unidade=unidade, corretor=corretor, gerente=gerente,
+                 canal=canal, vendas=vendas, vgv=100.0, valida=True)
+
+
+def test_gerente_cada_produto_usa_todas_as_autorias():
+    """
+    Régua de 07/10/2026: cada produto premium do gerente lê a coluna da matriz
+    com o total de Autorias da equipe. Caso real do Diego (Ago+Set): 2 Autorias
+    + Vila Clementino + Brooklin + Pinheiros = 8.000 + 7.000 + 8.000.
+    """
+    vendas = [
+        _venda("Autoria MAC", "1313", "DIEGO"),
+        _venda("Autoria MAC", "1609", "DIEGO", 0.5, corretor="U REAL ESTATE"),
+        _venda("Autoria MAC", "1609", "DIEGO", 0.5, corretor="FOXTER"),
+        _venda("Mac Vila Clementino", "163", "DIEGO"),
+        _venda("Mac Brooklin", "245", "DIEGO"),
+        _venda("Mac Pinheiros", "1803", "DIEGO"),
+    ]
+    g = montar_data(vendas)["realizado"]["gerentes"]["DIEGO"]
+    assert g["premiacao"] == 23_000
+    assert len(g["detalhe"]) == 3
+
+
+def test_gerente_meia_venda_de_outro_gerente_nao_conta():
+    """0,5 que não fecha unidade no mesmo produto/gerente não premia nem libera."""
+    vendas = [
+        _venda("Mac Brooklin", "134", "DAMIAO", canal="SALÃO"),
+        _venda("Mac Vila Clementino", "125", "DAMIAO", canal="SALÃO"),
+        _venda("Autoria MAC", "1911", "DAMIAO", canal="SALÃO"),
+        _venda("Autoria MAC", "1113", "DAMIAO", 0.5, canal="SALÃO"),
+        _venda("Mac Campo Belo", "41", "DAMIAO", 0.5, canal="SALÃO"),
+    ]
+    g = montar_data(vendas)["realizado"]["gerentes"]["DAMIAO"]
+    assert g["premiacao"] == 13_000   # Brooklin 6.000 + Vila Clementino 7.000
+
+
+def test_gerente_kicker_por_produto():
+    """Vitor: 1 Campo Belo + 3 Autorias = célula 1 un./3 Aut. da matriz (R$ 7.000)."""
+    vendas = [_venda("Mac Campo Belo", "75", "VITOR", canal="SALÃO")]
+    vendas += [_venda("Autoria MAC", f"a{i}", "VITOR", canal="SALÃO") for i in range(3)]
+    assert montar_data(vendas)["realizado"]["gerentes"]["VITOR"]["premiacao"] == 7_000
