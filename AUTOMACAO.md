@@ -59,6 +59,8 @@ por Performance a partir de 80% da meta (§7) e a Premiação Equipe Comercial (
 
 **Gerente, régua de 07/10/2026:** cada produto premium da equipe é calculado em separado, combinado com todas as Autorias do gerente, e arredondado por produto (matriz produto x Autoria do Material Completo). Ex.: Diego, 2 Autorias + Vila Clementino + Brooklin + Pinheiros = 8.000 + 7.000 + 8.000. Gerente só com Autoria segue a tabela §5.1. Metades (0,5) só contam quando fecham uma unidade inteira do mesmo produto para o mesmo gerente.
 
+**Rateio por empreendimento** (`scripts/custo_empreendimentos.py`, página `custo-empreendimentos.html`): mostra quanto cada empreendimento paga da premiação de corretores e gerentes. Na célula premium + Autoria, a parte da Autoria (40% ou 60% de R$ 3.408 por Autoria) é paga pelo Autoria MAC e o resto, kicker incluído, pelo produto premium. Fixo B2B vai para o produto da unidade; bônus de volume, para o Autoria MAC. O script confere se a soma por pessoa bate com o motor e aborta se não bater.
+
 `tests/test_motor.py` guarda as 7 vendas lançadas até 14/08/2026 e o `DATA` que
 estava publicado no site naquele dia. O teste exige que o motor reproduza aquele
 bloco campo a campo, além de conferir a régua da §5.1 e o exemplo da §3.3 do
@@ -149,6 +151,7 @@ python scripts/atualiza.py --json vendas.json                           # 2. ran
 python scripts/atualiza_conta_corrente.py --json lanc.json \
                                           --quadro quadro.json          # 3. conta corrente
 python scripts/artes.py                                                 # 4. artes .jpg
+python scripts/custo_empreendimentos.py --json vendas.json               # 5. rateio por empreendimento
 ```
 
 Os três JSONs são montados a partir da planilha e seguem as dataclasses do

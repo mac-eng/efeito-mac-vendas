@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Custo por Empreendimento — Efeito MAC Vendas</title>
+<title>Rateio por Empreendimento — Efeito MAC Vendas</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#111112;--g1:#f4f4f3;--g2:#e7e7e5;--g5:#6d6b66;--accent:#b4894d;--accent2:#d8b271;--hold:#a8701a;--ok:#1c7359}
@@ -19,6 +19,7 @@ h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--g5);
 .seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
 .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card .lin.sub{font-size:12px;margin-top:4px}.card .sep{border-top:1px solid var(--g2);margin:9px 0 2px}
 .kpi{background:#fff;border:1px solid var(--g2);border-radius:14px;padding:13px 15px}
 .kpi .k{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--g5)}
 .kpi .v{font-size:21px;font-weight:900;line-height:1.15;margin-top:4px;font-variant-numeric:tabular-nums}
@@ -48,75 +49,76 @@ footer{margin-top:26px;font-size:11.5px;color:var(--g5);font-weight:600}
 </style></head><body><div class="wrap">
 <a class="back" href="index.html">&larr; Painéis da campanha</a>
 <div class="top"><div class="l1">EFEITO</div><div class="l2">MAC</div><div class="l3">VENDAS</div>
-<h1>Custo da campanha por empreendimento</h1>
-<p>Quanto da premiação do Motor de Vendas cai em cada produto, apurado a partir das vendas da campanha.</p></div>
+<h1>Rateio da premiação por empreendimento</h1>
+<p>Quanto cada empreendimento paga da premiação de corretores e gerentes do Motor de Vendas.</p></div>
 
 <div class="seg" role="group" aria-label="Base de cálculo">
-  <button id="bReal" aria-pressed="true">Realizado</button>
-  <button id="bProj" aria-pressed="false">Projeção</button>
+  <button id="bProj" aria-pressed="true">Todas pagam o sinal</button>
+  <button id="bReal" aria-pressed="false">Só sinal compensado</button>
 </div>
 
 <h2 id="hKpi">Resumo</h2>
 <div class="kpis" id="kpis"></div>
 
-<h2>Custo por empreendimento</h2>
+<h2>Quanto cada empreendimento paga</h2>
 <div class="tw"><table>
-<thead><tr><th class="l">Empreendimento</th><th>Un.</th><th>VGV</th><th>Premiação</th><th>Rateios</th><th>Total</th><th>% VGV</th><th>Custo/un.</th></tr></thead>
+<thead><tr><th class="l">Empreendimento</th><th>Un.</th><th>VGV</th><th>Gerente</th><th>Corretor</th><th>B2B fixo</th><th>Bônus</th><th>Total</th><th>% VGV</th><th>Custo/un.</th></tr></thead>
 <tbody id="tbody"></tbody><tfoot id="tfoot"></tfoot></table></div>
 
-<h2>Blocos por gerente — quem destravou a Autoria</h2>
+<h2>Premiação de cada gerente, por empreendimento pagador</h2>
 <div class="cards" id="blocos"></div>
 
-<h2>Como o número é montado</h2>
+<h2>Como o rateio é feito</h2>
 <div class="nota">
-<p><b>Retenção.</b> Produto premium vendido sozinho paga 75% do teto. Com 1 Autoria MAC no bloco da equipe, libera 100% do teto mais o valor da Autoria. A partir da 3ª Autoria combinada, entra o kicker de 20%.</p>
-<p><b>Colunas.</b> <i>Premiação</i> soma corretor, gerente e bônus de volume da Autoria. <i>Rateios</i> traz apenas o prêmio extra por performance, quando acionado.</p>
-<p><b>Split.</b> 60% corretor / 40% gerente sobre o preço cheio. Corretor de Parcerias (B2B) recebe R$ 2.000 fixos por venda, apurados em unidades inteiras por equipe.</p>
-<p><b>Aceleração da Autoria.</b> A parte da premiação que só existe porque havia uma Autoria no bloco — a diferença entre pagar 100% do teto e os 75% que o produto pagaria sozinho — é debitada da Autoria MAC, não do produto premium. É o custo de ter acelerado aquela venda.</p>
-<p><b>Fora desta página.</b> A verba fixa de R$ 40.000 já foi gasta e rateada por obra à parte, e a premiação da equipe comercial não entra enquanto a meta não for atingida. O Prêmio Extra por Performance (R$ 85.000) só é acionado a partir de 80% da meta.</p>
-<p><b>Bases.</b> "Realizado" conta só as vendas com sinal compensado; "Projeção" inclui as que estão em validação. Vendas internas e desistências ficam fora da premiação.</p>
+<p><b>Gerente.</b> Cada produto premium da equipe lê a célula da matriz produto x Autoria com todas as Autorias do gerente. Dentro da célula, a parte da Autoria (40% de R$ 3.408 por Autoria) é paga pelo Autoria MAC; o teto, o kicker e o arredondamento ficam com o produto premium. Sem Autoria, o produto paga 75% do teto. Gerente só com Autoria: paga o Autoria MAC.</p>
+<p><b>Corretor Salão/Online.</b> Mesma separação, com 60%. O bônus de volume da Autoria vendida sozinha é pago pelo Autoria MAC.</p>
+<p><b>Corretor B2B.</b> R$ 2.000 fixos por unidade fechada, pagos pelo empreendimento da unidade.</p>
+<p><b>Metades.</b> Uma venda 0,5 só paga quando, somada no mesmo produto, fecha uma unidade inteira para o mesmo corretor ou gerente.</p>
+<p><b>Bases.</b> "Todas pagam o sinal" inclui as vendas em validação; "Só sinal compensado" conta só o que já entrou. Vendas internas e desistências ficam fora. Verba fixa de eventos e premiação da equipe comercial não entram neste rateio.</p>
 </div>
 
-<footer>Atualizado em 07/10/2026 · Fonte: planilha Campanha Estoque — Geral — BP17 · Regras: Manual Operacional Motor de Vendas. Premiação de corretor e gerente arredondada ao milhar; rateios com valor exato.</footer>
+<footer>Atualizado em 08/10/2026 · Fonte: planilha Campanha Estoque — Geral — BP17 · Regras: Manual Operacional Motor de Vendas e matriz produto x Autoria. Premiação arredondada ao milhar por pessoa; o rateio entre empreendimentos usa valores exatos.</footer>
 </div>
 <script>
-var DADOS = {"atualizado":"07/10/2026","real":{"resumo":{"vgv":26998305.119999997,"un":26.0,"atingido":0.30500748117347404,"total":109000.0,"pctVGV":0.004037290471217551,"retido":5107.75,"corretor":51000.0,"gerente":58000.0,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"extraAtivo":false},"produtos":[{"nome":"Ateliê 365","un":0.0,"vgv":0.0,"corretor":0.0,"gerente":0.0,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":0.0,"pctVGV":0,"custoUn":0,"plano100":33933},{"nome":"Mac Ibirapuera","un":0.0,"vgv":0.0,"corretor":0.0,"gerente":0.0,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":0.0,"pctVGV":0,"custoUn":0,"plano100":71082},{"nome":"Mac Pinheiros","un":2.0,"vgv":3475500.0,"corretor":8965.56473829201,"gerente":9382.4183040017,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":18347.98304229371,"pctVGV":0.005279235517851736,"custoUn":9173.991521146854,"plano100":146840},{"nome":"Mac Vila Clementino","un":2.0,"vgv":3810000.0,"corretor":8983.24150596878,"gerente":10260.880093916234,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":19244.121599885013,"pctVGV":0.005050950551150922,"custoUn":9622.060799942506,"plano100":75537},{"nome":"Mac Brooklin","un":3.0,"vgv":4706800.0,"corretor":7486.455463728191,"gerente":8552.181015560349,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":16038.63647928854,"pctVGV":0.0034075457804216324,"custoUn":5346.212159762847,"plano100":96416},{"nome":"Mac Vila Mariana","un":1.0,"vgv":2600000.0,"corretor":2000.0,"gerente":2000.0,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":4000.0,"pctVGV":0.0015384615384615385,"custoUn":4000.0,"plano100":44863},{"nome":"Mac Campo Belo","un":2.0,"vgv":2365000.0,"corretor":2000.0,"gerente":1826.6834987620102,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":3826.6834987620105,"pctVGV":0.0016180479910198776,"custoUn":1913.3417493810052,"plano100":64149},{"nome":"Autoria MAC","un":16.0,"vgv":10041005.12,"corretor":21564.738292011018,"gerente":25977.837087759704,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":47542.57537977072,"pctVGV":0.004734842260469908,"custoUn":2971.41096123567,"plano100":197181}],"blocos":[{"gerente":"DIEGO","autorias":2,"destravado":true,"premium":[{"nome":"Mac Brooklin","un":1},{"nome":"Mac Pinheiros","un":1},{"nome":"Mac Vila Clementino","un":1}],"gerenteValor":23000,"retido":0.0,"pool":43560},{"gerente":"DAMIAO","autorias":1,"destravado":true,"premium":[{"nome":"Mac Brooklin","un":1},{"nome":"Mac Vila Clementino","un":1}],"gerenteValor":13000,"retido":0.0,"pool":27234},{"gerente":"MITUI","autorias":5,"destravado":true,"premium":[],"gerenteValor":7000,"retido":0.0,"pool":17040},{"gerente":"VITOR","autorias":3,"destravado":true,"premium":[{"nome":"Mac Campo Belo","un":1}],"gerenteValor":7000,"retido":0.0,"pool":17587.2},{"gerente":"MURILO","autorias":0,"destravado":false,"premium":[{"nome":"Mac Pinheiros","un":1}],"gerenteValor":4000,"retido":3229.5,"pool":9688.5},{"gerente":"RENATA","autorias":0,"destravado":false,"premium":[{"nome":"Mac Vila Mariana","un":1}],"gerenteValor":2000,"retido":1878.25,"pool":5634.75},{"gerente":"MAURO","autorias":1,"destravado":true,"premium":[],"gerenteValor":1000,"retido":0.0,"pool":3408},{"gerente":"ROBERTO","autorias":1,"destravado":true,"premium":[],"gerenteValor":1000,"retido":0.0,"pool":3408}]},"proj":{"resumo":{"vgv":29007896.72,"un":28.0,"atingido":0.32771040527848805,"total":123000.0,"pctVGV":0.004240224694236294,"retido":7815.5,"corretor":58500.0,"gerente":62000.0,"bonus":2500.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"extraAtivo":false},"produtos":[{"nome":"Ateliê 365","un":0.0,"vgv":0.0,"corretor":0.0,"gerente":0.0,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":0.0,"pctVGV":0,"custoUn":0,"plano100":33933},{"nome":"Mac Ibirapuera","un":0.0,"vgv":0.0,"corretor":0.0,"gerente":0.0,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":0.0,"pctVGV":0,"custoUn":0,"plano100":71082},{"nome":"Mac Pinheiros","un":2.0,"vgv":3475500.0,"corretor":8965.56473829201,"gerente":9189.989149089914,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":18155.553887381924,"pctVGV":0.005223868187996525,"custoUn":9077.776943690962,"plano100":146840},{"nome":"Mac Vila Clementino","un":2.0,"vgv":3810000.0,"corretor":8983.24150596878,"gerente":10260.880093916234,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":19244.121599885013,"pctVGV":0.005050950551150922,"custoUn":9622.060799942506,"plano100":75537},{"nome":"Mac Brooklin","un":4.0,"vgv":5856800.0,"corretor":12486.45546372819,"gerente":11744.610170472135,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":24231.065634200328,"pctVGV":0.0041372533865251205,"custoUn":6057.766408550082,"plano100":96416},{"nome":"Mac Vila Mariana","un":1.0,"vgv":2600000.0,"corretor":2000.0,"gerente":2000.0,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":4000.0,"pctVGV":0.0015384615384615385,"custoUn":4000.0,"plano100":44863},{"nome":"Mac Campo Belo","un":2.0,"vgv":2365000.0,"corretor":2000.0,"gerente":1777.379821392777,"bonus":0.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":3777.379821392777,"pctVGV":0.0015972007701449374,"custoUn":1888.6899106963886,"plano100":64149},{"nome":"Autoria MAC","un":17.0,"vgv":10900596.719999999,"corretor":24064.738292011018,"gerente":27027.14076512894,"bonus":2500.0,"verbaFixa":0.0,"equipe":0.0,"extra":0.0,"total":53591.87905713996,"pctVGV":0.004916417003007883,"custoUn":3152.4634739494095,"plano100":197181}],"blocos":[{"gerente":"DIEGO","autorias":2,"destravado":true,"premium":[{"nome":"Mac Brooklin","un":1},{"nome":"Mac Pinheiros","un":1},{"nome":"Mac Vila Clementino","un":1}],"gerenteValor":23000,"retido":0.0,"pool":43560},{"gerente":"DAMIAO","autorias":1,"destravado":true,"premium":[{"nome":"Mac Brooklin","un":1},{"nome":"Mac Vila Clementino","un":1}],"gerenteValor":13000,"retido":0.0,"pool":27234},{"gerente":"VITOR","autorias":4,"destravado":true,"premium":[{"nome":"Mac Campo Belo","un":1}],"gerenteValor":8000,"retido":0.0,"pool":20995.2},{"gerente":"MITUI","autorias":5,"destravado":true,"premium":[],"gerenteValor":7000,"retido":0.0,"pool":17040},{"gerente":"MURILO","autorias":0,"destravado":false,"premium":[{"nome":"Mac Brooklin","un":1},{"nome":"Mac Pinheiros","un":1}],"gerenteValor":7000,"retido":5937.25,"pool":17811.75},{"gerente":"RENATA","autorias":0,"destravado":false,"premium":[{"nome":"Mac Vila Mariana","un":1}],"gerenteValor":2000,"retido":1878.25,"pool":5634.75},{"gerente":"MAURO","autorias":1,"destravado":true,"premium":[],"gerenteValor":1000,"retido":0.0,"pool":3408},{"gerente":"ROBERTO","autorias":1,"destravado":true,"premium":[],"gerenteValor":1000,"retido":0.0,"pool":3408}]}};
-var base = "real";
+var DADOS = {"atualizado":"08/10/2026","real":{"resumo":{"vgv":27857896.72,"un":27.0,"gerente":59000.0,"corretor":41500.0,"b2b":12000.0,"bonus":2500.0,"total":115000.0,"pctVGV":0.004128093414799623,"atingido":0.314718530351878},"produtos":[{"nome":"Ateliê 365","un":0.0,"vgv":0.0,"gerente":0.0,"corretor":0.0,"b2b":0.0,"bonus":0.0,"total":0.0,"pctVGV":0,"custoUn":0},{"nome":"Mac Ibirapuera","un":0.0,"vgv":0.0,"gerente":0.0,"corretor":0.0,"b2b":0.0,"bonus":0.0,"total":0.0,"pctVGV":0,"custoUn":0},{"nome":"Mac Pinheiros","un":2.0,"vgv":3475500.0,"gerente":9273.6,"corretor":6000.0,"b2b":2000.0,"bonus":0.0,"total":17273.6,"pctVGV":0.004970105020860307,"custoUn":8636.8},{"nome":"Mac Vila Clementino","un":2.0,"vgv":3810000.0,"gerente":10910.4,"corretor":6000.0,"b2b":2000.0,"bonus":0.0,"total":18910.4,"pctVGV":0.0049633595800524935,"custoUn":9455.2},{"nome":"Mac Brooklin","un":3.0,"vgv":4706800.0,"gerente":8910.4,"corretor":5000.0,"b2b":2000.0,"bonus":0.0,"total":15910.4,"pctVGV":0.00338030084133594,"custoUn":5303.466666666667},{"nome":"Mac Vila Mariana","un":1.0,"vgv":2600000.0,"gerente":2000.0,"corretor":0.0,"b2b":2000.0,"bonus":0.0,"total":4000.0,"pctVGV":0.0015384615384615385,"custoUn":4000.0},{"nome":"Mac Campo Belo","un":2.0,"vgv":2365000.0,"gerente":2547.2,"corretor":2000.0,"b2b":0.0,"bonus":0.0,"total":4547.2,"pctVGV":0.001922706131078224,"custoUn":2273.6},{"nome":"Autoria MAC","un":17.0,"vgv":10900596.72,"gerente":25358.4,"corretor":22500.0,"b2b":4000.0,"bonus":2500.0,"total":54358.4,"pctVGV":0.004986736175668739,"custoUn":3197.55294117647}],"gerentes":[{"gerente":"Diego","autorias":2,"premium":[{"nome":"Mac Vila Clementino","un":1},{"nome":"Mac Brooklin","un":1},{"nome":"Mac Pinheiros","un":1}],"valor":23000,"b2b":10000,"paga":{"Autoria MAC":8179.2,"Mac Vila Clementino":5273.6,"Mac Pinheiros":5273.6,"Mac Brooklin":4273.6}},{"gerente":"Damiao","autorias":1,"premium":[{"nome":"Mac Brooklin","un":1},{"nome":"Mac Vila Clementino","un":1}],"valor":13000,"b2b":0,"paga":{"Mac Vila Clementino":5636.8,"Mac Brooklin":4636.8,"Autoria MAC":2726.4}},{"gerente":"Vitor","autorias":4,"premium":[{"nome":"Mac Campo Belo","un":1}],"valor":8000,"b2b":0,"paga":{"Autoria MAC":5452.8,"Mac Campo Belo":2547.2}},{"gerente":"Mitui","autorias":5,"premium":[],"valor":7000,"b2b":0,"paga":{"Autoria MAC":7000}},{"gerente":"Murilo","autorias":0,"premium":[{"nome":"Mac Pinheiros","un":1}],"valor":4000,"b2b":0,"paga":{"Mac Pinheiros":4000.0}},{"gerente":"Renata","autorias":0,"premium":[{"nome":"Mac Vila Mariana","un":1}],"valor":2000,"b2b":2000,"paga":{"Mac Vila Mariana":2000.0}},{"gerente":"Roberto","autorias":1,"premium":[],"valor":1000,"b2b":0,"paga":{"Autoria MAC":1000}},{"gerente":"Mauro","autorias":1,"premium":[],"valor":1000,"b2b":0,"paga":{"Autoria MAC":1000}}]},"proj":{"resumo":{"vgv":29007896.72,"un":28.0,"gerente":62000.0,"corretor":46500.0,"b2b":12000.0,"bonus":2500.0,"total":123000.0,"pctVGV":0.004240224694236294,"atingido":0.32771040527848805},"produtos":[{"nome":"Ateliê 365","un":0.0,"vgv":0.0,"gerente":0.0,"corretor":0.0,"b2b":0.0,"bonus":0.0,"total":0.0,"pctVGV":0,"custoUn":0},{"nome":"Mac Ibirapuera","un":0.0,"vgv":0.0,"gerente":0.0,"corretor":0.0,"b2b":0.0,"bonus":0.0,"total":0.0,"pctVGV":0,"custoUn":0},{"nome":"Mac Pinheiros","un":2.0,"vgv":3475500.0,"gerente":9273.6,"corretor":6000.0,"b2b":2000.0,"bonus":0.0,"total":17273.6,"pctVGV":0.004970105020860307,"custoUn":8636.8},{"nome":"Mac Vila Clementino","un":2.0,"vgv":3810000.0,"gerente":10910.4,"corretor":6000.0,"b2b":2000.0,"bonus":0.0,"total":18910.4,"pctVGV":0.0049633595800524935,"custoUn":9455.2},{"nome":"Mac Brooklin","un":4.0,"vgv":5856800.0,"gerente":11910.4,"corretor":10000.0,"b2b":2000.0,"bonus":0.0,"total":23910.4,"pctVGV":0.004082502390383828,"custoUn":5977.6},{"nome":"Mac Vila Mariana","un":1.0,"vgv":2600000.0,"gerente":2000.0,"corretor":0.0,"b2b":2000.0,"bonus":0.0,"total":4000.0,"pctVGV":0.0015384615384615385,"custoUn":4000.0},{"nome":"Mac Campo Belo","un":2.0,"vgv":2365000.0,"gerente":2547.2,"corretor":2000.0,"b2b":0.0,"bonus":0.0,"total":4547.2,"pctVGV":0.001922706131078224,"custoUn":2273.6},{"nome":"Autoria MAC","un":17.0,"vgv":10900596.72,"gerente":25358.4,"corretor":22500.0,"b2b":4000.0,"bonus":2500.0,"total":54358.4,"pctVGV":0.004986736175668739,"custoUn":3197.55294117647}],"gerentes":[{"gerente":"Diego","autorias":2,"premium":[{"nome":"Mac Vila Clementino","un":1},{"nome":"Mac Brooklin","un":1},{"nome":"Mac Pinheiros","un":1}],"valor":23000,"b2b":10000,"paga":{"Autoria MAC":8179.2,"Mac Vila Clementino":5273.6,"Mac Pinheiros":5273.6,"Mac Brooklin":4273.6}},{"gerente":"Damiao","autorias":1,"premium":[{"nome":"Mac Brooklin","un":1},{"nome":"Mac Vila Clementino","un":1}],"valor":13000,"b2b":0,"paga":{"Mac Vila Clementino":5636.8,"Mac Brooklin":4636.8,"Autoria MAC":2726.4}},{"gerente":"Vitor","autorias":4,"premium":[{"nome":"Mac Campo Belo","un":1}],"valor":8000,"b2b":0,"paga":{"Autoria MAC":5452.8,"Mac Campo Belo":2547.2}},{"gerente":"Mitui","autorias":5,"premium":[],"valor":7000,"b2b":0,"paga":{"Autoria MAC":7000}},{"gerente":"Murilo","autorias":0,"premium":[{"nome":"Mac Pinheiros","un":1},{"nome":"Mac Brooklin","un":1}],"valor":7000,"b2b":0,"paga":{"Mac Pinheiros":4000.0,"Mac Brooklin":3000.0}},{"gerente":"Renata","autorias":0,"premium":[{"nome":"Mac Vila Mariana","un":1}],"valor":2000,"b2b":2000,"paga":{"Mac Vila Mariana":2000.0}},{"gerente":"Roberto","autorias":1,"premium":[],"valor":1000,"b2b":0,"paga":{"Autoria MAC":1000}},{"gerente":"Mauro","autorias":1,"premium":[],"valor":1000,"b2b":0,"paga":{"Autoria MAC":1000}}]}};
+var base = "proj";
 function brl(v){return (v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});}
 function pct(v,c){return (v*100).toLocaleString("pt-BR",{minimumFractionDigits:c,maximumFractionDigits:c})+"%";}
 function unf(v){return v%1?v.toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1}):v.toLocaleString("pt-BR");}
-function esc(s){return (s||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function esc(s){return String(s||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function d(v){return v>0.5? brl(v) : "&mdash;";}
 function render(){
   var r = DADOS[base], z = r.resumo;
-  document.getElementById("hKpi").textContent = base==="real" ? "Resumo — vendas com sinal compensado" : "Resumo — incluindo vendas em validação";
+  document.getElementById("hKpi").textContent = base==="proj" ? "Resumo — todas as vendas pagando o sinal" : "Resumo — só vendas com sinal compensado";
   document.getElementById("kpis").innerHTML = [
-    ["VGV "+(base==="real"?"realizado":"projetado"), brl(z.vgv), unf(z.un)+" un. · meta 73"],
-    ["Atingimento", pct(z.atingido,1), "meta R$ 88,5 mi"],
-    ["Custo da campanha", brl(z.total), "plano 100%: R$ 730 mil"],
-    ["Investimento / VGV", pct(z.pctVGV,2), "referência: 0,82%"]
+    ["Premiação total", brl(z.total), unf(z.un)+" un. vendidas"],
+    ["Gerentes", brl(z.gerente), "40% do preço cheio"],
+    ["Corretores", brl(z.corretor+z.b2b+z.bonus), "Salão/Online + B2B + bônus"],
+    ["Premiação / VGV", pct(z.pctVGV,2), "VGV "+brl(z.vgv)]
   ].map(function(t){return '<div class="kpi"><div class="k">'+t[0]+'</div><div class="v">'+t[1]+'</div><div class="d">'+t[2]+'</div></div>';}).join("");
 
   document.getElementById("tbody").innerHTML = r.produtos.map(function(p){
-    var d = function(v){return v? brl(v) : "&mdash;";};
-    return '<tr class="'+(p.un>0?"":"zero")+'"><td class="l">'+p.nome+'</td>'+
+    return '<tr class="'+(p.total>0.5?"":"zero")+'"><td class="l">'+p.nome+'</td>'+
       '<td>'+(p.un?unf(p.un):"&mdash;")+'</td><td>'+d(p.vgv)+'</td>'+
-      '<td>'+d(p.corretor+p.gerente+p.bonus)+'</td>'+
-      '<td>'+d(p.verbaFixa+p.equipe+p.extra)+'</td>'+
-      '<td class="tot">'+d(p.total)+'</td><td>'+(p.vgv?pct(p.pctVGV,2):"&mdash;")+'</td>'+
-      '<td>'+(p.un?brl(p.custoUn):"&mdash;")+'</td></tr>';
+      '<td>'+d(p.gerente)+'</td><td>'+d(p.corretor)+'</td><td>'+d(p.b2b)+'</td><td>'+d(p.bonus)+'</td>'+
+      '<td class="tot">'+d(p.total)+'</td><td>'+(p.vgv&&p.total?pct(p.pctVGV,2):"&mdash;")+'</td>'+
+      '<td>'+(p.un&&p.total?brl(p.custoUn):"&mdash;")+'</td></tr>';
   }).join("");
   document.getElementById("tfoot").innerHTML = '<tr><td class="l">Total</td><td>'+unf(z.un)+'</td><td>'+brl(z.vgv)+
-    '</td><td>'+brl(z.corretor+z.gerente+z.bonus)+'</td><td>'+brl(z.verbaFixa+z.equipe+z.extra)+
-    '</td><td>'+brl(z.total)+'</td><td>'+pct(z.pctVGV,2)+'</td><td>'+
-    (z.un?brl(z.total/z.un):"&mdash;")+'</td></tr>';
+    '</td><td>'+brl(z.gerente)+'</td><td>'+brl(z.corretor)+'</td><td>'+brl(z.b2b)+'</td><td>'+brl(z.bonus)+
+    '</td><td>'+brl(z.total)+'</td><td>'+pct(z.pctVGV,2)+'</td><td>'+(z.un?brl(z.total/z.un):"&mdash;")+'</td></tr>';
 
-  document.getElementById("blocos").innerHTML = r.blocos.map(function(b){
-    return '<div class="card '+(b.destravado?"":"hold")+'"><b>'+esc(b.gerente)+
-      '<span class="tag">'+(b.destravado?"destravado":"retido 75%")+'</span></b>'+
-      '<div class="lin"><span>Autoria MAC</span><i>'+unf(b.autorias)+' un.</i></div>'+
-      '<div class="lin"><span>Premium</span><i>'+(b.premium.length?b.premium.map(function(x){return esc(x.nome.replace("Mac ",""))+" "+unf(x.un);}).join(" · "):"&mdash;")+'</i></div>'+
-      '<div class="lin"><span>Gerente (40%)</span><i>'+brl(b.gerenteValor)+'</i></div>'+
-      (b.retido?'<div class="warn">'+brl(b.retido)+' retidos — falta 1 Autoria no bloco</div>':"")+
+  document.getElementById("blocos").innerHTML = r.gerentes.map(function(g){
+    var travado = g.autorias===0 && g.premium.length>0;
+    var pagadores = Object.keys(g.paga).map(function(p){
+      return '<div class="lin sub"><span>'+esc(p)+'</span><i>'+brl(g.paga[p])+'</i></div>';}).join("");
+    return '<div class="card '+(travado?"hold":"")+'"><b>'+esc(g.gerente)+
+      '<span class="tag">'+(travado?"retido 75%":(g.premium.length?"destravado":"só Autoria"))+'</span></b>'+
+      '<div class="lin"><span>Autoria MAC</span><i>'+unf(g.autorias)+' un.</i></div>'+
+      '<div class="lin"><span>Premium</span><i>'+(g.premium.length?g.premium.map(function(x){return esc(x.nome.replace("Mac ",""))+" "+unf(x.un);}).join(" · "):"&mdash;")+'</i></div>'+
+      '<div class="lin"><span>Premiação do gerente</span><i>'+brl(g.valor)+'</i></div>'+
+      (g.b2b?'<div class="lin"><span>Fixo B2B dos corretores</span><i>'+brl(g.b2b)+'</i></div>':"")+
+      '<div class="sep"></div>'+pagadores+
     '</div>';
   }).join("");
 }

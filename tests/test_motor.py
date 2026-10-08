@@ -239,3 +239,21 @@ def test_gerente_kicker_por_produto():
     vendas = [_venda("Mac Campo Belo", "75", "VITOR", canal="SALÃO")]
     vendas += [_venda("Autoria MAC", f"a{i}", "VITOR", canal="SALÃO") for i in range(3)]
     assert montar_data(vendas)["realizado"]["gerentes"]["VITOR"]["premiacao"] == 7_000
+
+
+def test_rateio_por_empreendimento_fecha_com_o_motor():
+    """O rateio por empreendimento soma exatamente a premiação que o motor publica."""
+    from custo_empreendimentos import rateio_gerente
+    vendas = [
+        _venda("Autoria MAC", "1313", "DIEGO"),
+        _venda("Autoria MAC", "1609", "DIEGO", 0.5, corretor="U REAL ESTATE"),
+        _venda("Autoria MAC", "1609", "DIEGO", 0.5, corretor="FOXTER"),
+        _venda("Mac Vila Clementino", "163", "DIEGO"),
+        _venda("Mac Brooklin", "245", "DIEGO"),
+        _venda("Mac Pinheiros", "1803", "DIEGO"),
+    ]
+    total, paga = rateio_gerente(vendas)
+    assert total == 23_000
+    # Autoria MAC paga 40% x R$ 3.408 x 2 Autorias em cada um dos 3 produtos.
+    assert round(paga["Autoria MAC"], 2) == round(3 * 0.4 * 2 * 3408, 2)
+    assert round(paga["Mac Pinheiros"], 2) == round(8000 - 0.4 * 2 * 3408, 2)
